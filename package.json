@@ -1,5 +1,6 @@
 {
-  "name": "my-e2e-library",
+  "name": "community.klubfisika",
+  "description": "KF13 Community Platform - Member portal for Klub Fisika Indonesia",
   "engines": {
     "node": "^18.17.0 || ^20.3.0 || >=21.0.0"
   },
@@ -36,5 +37,12 @@
     "undici": "*",
     "vite": "7.3.1",
     "vite-tsconfig-paths": "^4.2.1"
+  },
+  "dependencies": {
+    "@libsql/client": "^0.15.15",
+    "@tailwindcss/vite": "^4.3.0",
+    "katex": "^0.16.27",
+    "mermaid": "^11.12.2",
+    "tailwindcss": "^4.3.0"
   }
 }

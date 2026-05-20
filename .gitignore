@@ -1,13 +1,17 @@
-# Build
+# Build output
 /dist
 /lib
 /lib-types
 /server
 
-# Development
+# Dependencies
 node_modules
+
+# Environment variables (CRITICAL: Never commit secrets!)
 .env
-*.local
+.env.local
+.env.production
+.env.*
 
 # Cache
 .cache
@@ -18,24 +22,13 @@ tsconfig.tsbuildinfo
 # Logs
 logs
 *.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
 
 # Editor
 .vscode/*
 !.vscode/launch.json
 !.vscode/*.code-snippets
-
 .idea
 .DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
 
 # Yarn
 .yarn/*
