@@ -1,8 +1,10 @@
 import { component$, useVisibleTask$, useSignal } from "@builder.io/qwik";
 import type { DocumentHead } from "@builder.io/qwik-city";
+import { useAuth } from "~/lib/auth";
 import PlatformLayout from "~/components/platform/PlatformLayout";
 
 export default component$(() => {
+  const auth = useAuth();
   const userName = useSignal("Member");
   const posts = useSignal(0);
   const cendol = useSignal(0);
@@ -14,20 +16,17 @@ export default component$(() => {
   const rankNext = useSignal("50 posts lagi ke Kaskus Addict");
 
   useVisibleTask$(() => {
-    const member = localStorage.getItem("kf13-member");
-    if (!member) {
-      window.location.replace("/mulai");
+    if (!auth.value) {
+      window.location.replace("/login");
       return;
     }
-    const user = JSON.parse(member);
-    userName.value = user.name?.split(" ")[0] || "Member";
-    posts.value = user.posts || 0;
-    cendol.value = user.cendol || 0;
-    projects.value = user.projects || 0;
-    reputation.value = (user.cendol || 0) - (user.bata || 0);
-    rankPosts.value = `${user.posts || 0} posts`;
-    const progress = Math.min(((user.posts || 0) / 50) * 100, 100);
-    rankProgress.value = progress;
+    userName.value = auth.value.name?.split(" ")[0] || "Member";
+    posts.value = 0;
+    cendol.value = 0;
+    projects.value = 0;
+    reputation.value = 0;
+    rankPosts.value = "0 posts";
+    rankProgress.value = 0;
   });
 
   return (

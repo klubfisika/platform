@@ -3,11 +3,10 @@ import type { DocumentHead } from "@builder.io/qwik-city";
 
 export default component$(() => {
   useVisibleTask$(() => {
-    const member = localStorage.getItem("kf13-member");
-    if (member) {
-      setTimeout(() => window.location.replace("/feed"), 800);
+    if (document.cookie.includes("kf13-session")) {
+      window.location.replace("/feed");
     } else {
-      setTimeout(() => window.location.replace("/mulai"), 800);
+      window.location.replace("/mulai");
     }
   });
 
