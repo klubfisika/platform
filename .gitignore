@@ -34,3 +34,5 @@ logs
 .yarn/*
 !.yarn/releases
 .vercel
+.sisyphus
+package-lock.json
