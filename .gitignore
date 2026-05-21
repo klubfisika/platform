@@ -33,3 +33,4 @@ logs
 # Yarn
 .yarn/*
 !.yarn/releases
+.vercel
