@@ -2,7 +2,6 @@ import { component$ } from '@builder.io/qwik';
 import { 
   MOBILE_NAV_CONFIG,
   MOBILE_NAV_ITEMS,
-  MOBILE_NAV_PROFILE,
   MOBILE_NAV_LABELS,
   getMobileNavItemClass
 } from '~/data/mobileNavConfig';
@@ -13,16 +12,20 @@ interface Props {
 
 export default component$<Props>(({ activeNav }) => {
   return (
-    <nav class={`lg:hidden ${MOBILE_NAV_CONFIG.position} ${MOBILE_NAV_CONFIG.styling}`} aria-label={MOBILE_NAV_LABELS.ariaLabel}>
-      <div class="flex justify-around py-2">
+    <nav 
+      class={`lg:hidden ${MOBILE_NAV_CONFIG.position} ${MOBILE_NAV_CONFIG.styling} ${MOBILE_NAV_CONFIG.safeAreaPadding}`} 
+      aria-label={MOBILE_NAV_LABELS.ariaLabel}
+      style="padding-bottom: env(safe-area-inset-bottom, 1rem);"
+    >
+      <div class="flex justify-around items-center py-2">
         {MOBILE_NAV_ITEMS.map(item => (
           <a 
             key={item.href}
             href={item.href} 
             class={getMobileNavItemClass(activeNav === item.href)}
           >
-            <span class="text-xl">{item.icon}</span>
-            <span class="text-xs mt-0.5">{item.label}</span>
+            <span class="text-xl transition-transform duration-200">{item.icon}</span>
+            <span class="text-[10px] mt-0.5 font-medium">{item.label}</span>
           </a>
         ))}
       </div>

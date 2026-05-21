@@ -1,17 +1,17 @@
 import { component$, useVisibleTask$, useSignal } from "@builder.io/qwik";
 import type { DocumentHead } from "@builder.io/qwik-city";
+import { useAuth } from "~/lib/auth";
 import PlatformLayout from "~/components/platform/PlatformLayout";
 
 export default component$(() => {
+  const auth = useAuth();
   const name = useSignal("Member");
   const email = useSignal("");
 
   useVisibleTask$(() => {
-    const member = localStorage.getItem("kf13-member");
-    if (!member) { window.location.replace("/mulai"); return; }
-    const user = JSON.parse(member);
-    name.value = user.name || "Member";
-    email.value = user.email || "";
+    if (!auth.value) { window.location.replace("/login"); return; }
+    name.value = auth.value.name || "Member";
+    email.value = auth.value.email || "";
   });
 
   return (

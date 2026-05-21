@@ -1,5 +1,6 @@
 import { component$, useVisibleTask$ } from "@builder.io/qwik";
 import type { DocumentHead } from "@builder.io/qwik-city";
+import { useAuth } from "~/lib/auth";
 import PlatformLayout from "~/components/platform/PlatformLayout";
 
 const projects = [
@@ -9,8 +10,9 @@ const projects = [
 ];
 
 export default component$(() => {
+  const user = useAuth();
   useVisibleTask$(() => {
-    if (!localStorage.getItem("kf13-member")) window.location.replace("/mulai");
+    if (!user.value) window.location.replace("/login");
   });
 
   return (

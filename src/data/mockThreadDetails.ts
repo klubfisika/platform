@@ -16,7 +16,7 @@ export interface Reply {
   createdAt: string;
   isPertamax?: boolean;
   quote?: { author: string; text: string };
-  nested?: Reply[];
+  replies?: Reply[];
   signature?: string;
 }
 
@@ -118,7 +118,7 @@ Keliatan kan pola gelap-terangnya? Itu bukti interferensi konstruktif dan destru
         bata: 0,
         createdAt: '2 jam lalu',
         isPertamax: true,
-        nested: [
+        replies: [
           {
             id: 'r1-1',
             author: { name: 'budi_fisika', rank: 'Kaskus Holic', posts: 156 },
@@ -261,7 +261,7 @@ Voila! **Persamaan Schrödinger**! :mantap`,
         cendol: 18,
         bata: 0,
         createdAt: '1 jam lalu',
-        nested: [
+        replies: [
           {
             id: 'r3-1',
             author: { name: 'newbie_quantum', rank: 'Newbie', posts: 5 },
@@ -356,7 +356,7 @@ Selamat mencoba! :gas`,
         cendol: 25,
         bata: 0,
         createdAt: '20 jam lalu',
-        nested: [
+        replies: [
           {
             id: 'r2-1',
             author: { name: 'arduino_newbie', rank: 'Newbie', posts: 8 },

@@ -9,11 +9,12 @@ export const LEFT_SIDEBAR_CONFIG = {
 };
 
 export const LEFT_SIDEBAR_NAV_ITEMS = [
-  { href: '/platform/feed', label: 'Home', icon: '🏠' },
-  { href: '/platform/discussions', label: 'Forum', icon: '💬' },
-  { href: '/platform/projects', label: 'Projects', icon: '🔬' },
-  { href: '/platform/shorts', label: 'Shorts', icon: '🎬' },
-  { href: '/platform/explore', label: 'Explore', icon: '🔍' },
+  { href: '/feed', label: 'Home', icon: '🏠' },
+  { href: '/discussions', label: 'Forum', icon: '💬' },
+  { href: '/projects', label: 'Projects', icon: '🔬' },
+  { href: '/competitions', label: 'Kompetisi', icon: '🏆' },
+  { href: '/shorts', label: 'Shorts', icon: '🎬' },
+  { href: '/explore', label: 'Explore', icon: '🔍' },
 ];
 
 export const LEFT_SIDEBAR_TRENDING_TOPICS = [

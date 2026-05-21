@@ -1,6 +1,7 @@
 import { component$, useVisibleTask$ } from "@builder.io/qwik";
 import { useLocation } from "@builder.io/qwik-city";
 import type { DocumentHead } from "@builder.io/qwik-city";
+import { useAuth } from "~/lib/auth";
 import PlatformLayout from "~/components/platform/PlatformLayout";
 import { getThreadDetail } from "~/data/mockThreadDetails";
 
@@ -8,10 +9,10 @@ export default component$(() => {
   const loc = useLocation();
   const id = loc.params.id;
   const thread = getThreadDetail(id);
+  const user = useAuth();
 
   useVisibleTask$(() => {
-    const member = localStorage.getItem("kf13-member");
-    if (!member) window.location.replace("/mulai");
+    if (!user.value) window.location.replace("/login");
   });
 
   if (!thread) {
@@ -48,7 +49,7 @@ export default component$(() => {
           <div class="flex-1 min-w-0">
             <div class="flex items-center gap-2 flex-wrap">
               <a href={`/u/${thread.author.name}`} class="font-semibold text-gray-900 hover:underline">{thread.author.name}</a>
-              <span class={`text-sm font-medium ${rankColors[thread.author.rank] || "text-gray-500"}`}>{thread.author.rank}</span>
+              <span class={`text-sm font-medium ${rankColors[thread.author.rank ?? ''] || "text-gray-500"}`}>{thread.author.rank}</span>
               <span class="text-gray-400">·</span>
               <span class="text-gray-500 text-sm">{thread.lastActivity}</span>
             </div>

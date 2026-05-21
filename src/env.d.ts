@@ -1,8 +1,7 @@
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
-  readonly TURSO_DATABASE_URL: string;
-  readonly TURSO_AUTH_TOKEN: string;
+  readonly NEON_DATABASE_URL: string;
 }
 
 interface ImportMeta {

@@ -19,7 +19,7 @@ export const mockNotifications: Notification[] = [
     time: '2 menit lalu',
     read: false,
     avatar: 'A',
-    link: '/platform/discussions/berhasil-bikin-interferometer-michelson-dari-cermi-f7g8h9i0j1k2',
+    link: '/discussions/berhasil-bikin-interferometer-michelson-dari-cermi-f7g8h9i0j1k2',
     data: { threadTitle: 'Interferometer Michelson', username: 'ahmad_fisika' }
   },
   {
@@ -30,7 +30,7 @@ export const mockNotifications: Notification[] = [
     time: '15 menit lalu',
     read: false,
     avatar: 'Q',
-    link: '/platform/discussions/derivasi-persamaan-schrodinger-dari-prinsip-varias-l3m4n5o6p7q8',
+    link: '/discussions/derivasi-persamaan-schrodinger-dari-prinsip-varias-l3m4n5o6p7q8',
     data: { threadTitle: 'Persamaan Schrödinger', username: 'quantum_master' }
   },
   {
@@ -41,7 +41,7 @@ export const mockNotifications: Notification[] = [
     time: '1 jam lalu',
     read: false,
     avatar: 'N',
-    link: '/platform/discussions/kenapa-momentum-angular-kekal-tapi-energi-kinetik-r9s0t1u2v3w4',
+    link: '/discussions/kenapa-momentum-angular-kekal-tapi-energi-kinetik-r9s0t1u2v3w4',
     data: { threadTitle: 'Momentum Angular', username: 'newbie_phy' }
   },
   {
@@ -52,7 +52,7 @@ export const mockNotifications: Notification[] = [
     time: '2 jam lalu',
     read: true,
     avatar: 'M',
-    link: '/platform/u/maker_indo',
+    link: '/u/maker_indo',
     data: { username: 'maker_indo' }
   },
   {
@@ -63,7 +63,7 @@ export const mockNotifications: Notification[] = [
     time: '3 jam lalu',
     read: true,
     avatar: '🔥',
-    link: '/platform/discussions/bikin-sensor-suhu-lcd-dengan-arduino-untuk-eksperi-x5y6z7a8b9c0',
+    link: '/discussions/bikin-sensor-suhu-lcd-dengan-arduino-untuk-eksperi-x5y6z7a8b9c0',
     data: { threadTitle: 'Arduino Sensor', replyCount: 12 }
   },
   {
@@ -74,7 +74,7 @@ export const mockNotifications: Notification[] = [
     time: '5 jam lalu',
     read: true,
     avatar: 'G',
-    link: '/platform/discussions/pembahasan-soal-osn-fisika-2025-nomor-1-5-p3q4r5s6t7u8',
+    link: '/discussions/pembahasan-soal-osn-fisika-2025-nomor-1-5-p3q4r5s6t7u8',
     data: { threadTitle: 'OSN Fisika 2025', username: 'guru_fisika' }
   },
   {

@@ -1,5 +1,5 @@
 import { component$, useSignal, useStore, useVisibleTask$, $ } from '@builder.io/qwik';
-import { turso, initDB } from '~/lib/turso';
+import { getPosts, createPost, addLike } from '~/lib/db';
 
 interface Post {
   id: number;
@@ -9,59 +9,60 @@ interface Post {
   likes: number;
 }
 
-export default component$(() => {
+interface Props {
+  currentUser?: string;
+}
+
+export default component$<Props>(({ currentUser }) => {
   const posts = useStore<Post[]>([]);
   const newPost = useSignal('');
-  const currentUser = useSignal('Anonymous');
   const isLoading = useSignal(true);
 
   useVisibleTask$(async () => {
     try {
-      await initDB();
-      const member = localStorage.getItem('kf13-member');
-      if (member) currentUser.value = JSON.parse(member).name || 'Anonymous';
-      
-      const result = await turso.execute('SELECT * FROM posts ORDER BY created_at DESC LIMIT 20');
-      posts.splice(0, posts.length, ...result.rows.map(row => ({
-        id: row.id as number,
-        author: row.author as string,
-        content: row.content as string,
-        created_at: new Date(row.created_at as string).toLocaleString('id-ID'),
-        likes: row.likes as number
-      })));
-    } catch (e) {
-      console.log('Failed to load posts');
+      const rows = await getPosts(20);
+      if (rows) {
+        posts.splice(0, posts.length, ...rows.map((row: any) => ({
+          id: row.id as number,
+          author: row.author_name as string,
+          content: row.content as string,
+          created_at: new Date(row.created_at as string).toLocaleString('id-ID'),
+          likes: (row.cendol_count as number) || 0
+        })));
+      }
+    } catch {
+      console.error('Failed to load posts');
     }
     isLoading.value = false;
   });
 
-  const addPost = $(async () => {
-    if (!newPost.value.trim()) return;
+  const handleAddPost = $(async () => {
+    if (!newPost.value.trim() || !currentUser) return;
     try {
-      const result = await turso.execute({
-        sql: 'INSERT INTO posts (author, content) VALUES (?, ?) RETURNING *',
-        args: [currentUser.value, newPost.value]
-      });
-      const row = result.rows[0];
-      posts.unshift({
-        id: row.id as number,
-        author: row.author as string,
-        content: row.content as string,
-        created_at: 'Baru saja',
-        likes: 0
-      });
+      const row = await createPost(currentUser, newPost.value);
+      if (row) {
+        posts.unshift({
+          id: row.id as number,
+          author: currentUser,
+          content: newPost.value,
+          created_at: 'Baru saja',
+          likes: 0
+        });
+      }
       newPost.value = '';
-    } catch (e) {
+    } catch {
       console.error('Failed to post');
     }
   });
 
   const likePost = $(async (id: number) => {
     try {
-      await turso.execute({ sql: 'UPDATE posts SET likes = likes + 1 WHERE id = ?', args: [id] });
+      await addLike(id);
       const post = posts.find(p => p.id === id);
       if (post) post.likes++;
-    } catch (e) {}
+    } catch {
+      console.error('Failed to add like');
+    }
   });
 
   if (isLoading.value) {
@@ -75,7 +76,7 @@ export default component$(() => {
           onInput$={(e) => newPost.value = (e.target as HTMLTextAreaElement).value}
           placeholder="Share something with the KF13 community..."
           class="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition resize-none" rows={3} />
-        <button onClick$={addPost} class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+        <button onClick$={handleAddPost} class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
           Post
         </button>
       </div>

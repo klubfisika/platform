@@ -1,9 +1,11 @@
 import { component$, useVisibleTask$ } from "@builder.io/qwik";
 import type { DocumentHead } from "@builder.io/qwik-city";
+import { useAuth } from "~/lib/auth";
 import PlatformLayout from "~/components/platform/PlatformLayout";
 
 export default component$(() => {
-  useVisibleTask$(() => { if (!localStorage.getItem("kf13-member")) window.location.replace("/mulai"); });
+  const user = useAuth();
+  useVisibleTask$(() => { if (!user.value) window.location.replace("/login"); });
 
   return (
     <PlatformLayout title="Jelajahi" activeNav="/explore">

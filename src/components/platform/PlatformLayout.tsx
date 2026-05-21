@@ -5,6 +5,7 @@ import PlatformRightSidebar from "~/components/platform/RightSidebar";
 import MobileNav from "~/components/qwik/MobileNav";
 
 export interface PlatformLayoutProps {
+  title?: string;
   activeNav?: string;
   hideRightSidebar?: boolean;
 }

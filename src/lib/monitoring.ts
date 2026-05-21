@@ -1,15 +1,17 @@
-// Web Vitals monitoring for profile pages
+declare global {
+  function gtag(event: string, action: string, params: Record<string, unknown>): void;
+}
+
 export function initProfileMonitoring() {
   if (typeof window === 'undefined') return;
+  if (typeof gtag !== 'function') return;
 
-  // Track profile page performance
   const observer = new PerformanceObserver((list) => {
     for (const entry of list.getEntries()) {
       if (entry.name.includes('/[username]')) {
-        // Send metrics to analytics
         gtag('event', 'profile_page_performance', {
           metric_name: entry.entryType,
-          metric_value: entry.duration || entry.value,
+          metric_value: (entry as PerformanceEntry & { value?: number }).value ?? entry.duration,
           page_path: window.location.pathname
         });
       }
@@ -18,7 +20,6 @@ export function initProfileMonitoring() {
 
   observer.observe({ entryTypes: ['navigation', 'paint', 'layout-shift'] });
 
-  // Track user interactions
   document.addEventListener('click', (e) => {
     const target = e.target as HTMLElement;
     if (target.matches('[data-track]')) {

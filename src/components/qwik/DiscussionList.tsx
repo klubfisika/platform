@@ -21,7 +21,7 @@ const syncThreadData = (thread: Thread) => {
   // Calculate dynamic reply count
   let replyCount = detail.replies.length;
   detail.replies.forEach(reply => {
-    if (reply.nested) replyCount += reply.nested.length;
+    if (reply.replies) replyCount += reply.replies.length;
   });
 
   // Calculate last activity and reply by
@@ -31,7 +31,7 @@ const syncThreadData = (thread: Thread) => {
   if (detail.replies.length > 0) {
     const allReplies = [...detail.replies];
     detail.replies.forEach(reply => {
-      if (reply.nested) allReplies.push(...reply.nested);
+      if (reply.replies) allReplies.push(...reply.replies);
     });
     
     // Sort by time (optimized)
@@ -79,6 +79,23 @@ export default component$(() => {
     activeTag.value = params.get('tag') || '';
     searchQuery.value = params.get('search') || '';
     sortBy.value = params.get('sort') || 'latest';
+  });
+
+  // Tag filter event listener
+  useVisibleTask$(() => {
+    const handleTagFilter = (e: CustomEvent) => {
+      const url = new URL(window.location.href);
+      url.searchParams.set('tag', e.detail);
+      url.searchParams.delete('page');
+      window.history.pushState({}, '', url.toString());
+      window.location.reload();
+    };
+    
+    document.addEventListener('tag-filter', handleTagFilter as EventListener);
+    
+    return () => {
+      document.removeEventListener('tag-filter', handleTagFilter as EventListener);
+    };
   });
 
   // Update URL when filters change
@@ -140,7 +157,7 @@ export default component$(() => {
 
   // Sort by last activity (most recent first)
   const sortedThreads = useComputed$(() => {
-    let threads = [...filteredThreads.value];
+    const threads = [...filteredThreads.value];
     
     // Sticky threads first
     threads.sort((a, b) => {
@@ -190,7 +207,7 @@ export default component$(() => {
             <p class="text-sm opacity-90">{FORUM_CONFIG.subtitle}</p>
           </div>
         </div>
-        <a href="/platform/discussions/new" class="bg-white text-green-700 px-4 py-2 rounded-full text-sm font-medium hover:bg-green-50 transition shadow-sm">
+        <a href="/discussions/new" class="bg-white text-green-700 px-4 py-2 rounded-full text-sm font-medium hover:bg-green-50 transition shadow-sm">
           {FORUM_LABELS.createThread}
         </a>
       </div>
@@ -306,23 +323,6 @@ export default component$(() => {
           ))
         )}
       </div>
-
-      {/* Tag filter event listener */}
-      {useVisibleTask$(() => {
-        const handleTagFilter = (e: CustomEvent) => {
-          const url = new URL(window.location.href);
-          url.searchParams.set('tag', e.detail);
-          url.searchParams.delete('page');
-          window.history.pushState({}, '', url.toString());
-          window.location.reload();
-        };
-        
-        document.addEventListener('tag-filter', handleTagFilter as EventListener);
-        
-        return () => {
-          document.removeEventListener('tag-filter', handleTagFilter as EventListener);
-        };
-      })}
 
       {/* Pagination */}
       {totalPages.value > 1 && (

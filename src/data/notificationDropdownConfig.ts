@@ -10,7 +10,7 @@ export const NOTIFICATION_DROPDOWN_LABELS = {
   buttonTitle: 'Notifikasi',
   markAllRead: 'Tandai Semua Dibaca',
   viewAll: 'Lihat Semua Notifikasi',
-  viewAllHref: '/platform/notifications',
+  viewAllHref: '/notifications',
   emptyState: 'Belum ada notifikasi',
   unreadCountMax: '9+'
 };

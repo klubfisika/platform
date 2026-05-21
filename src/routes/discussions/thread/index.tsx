@@ -1,5 +1,6 @@
 import { component$, useVisibleTask$ } from "@builder.io/qwik";
 import type { DocumentHead } from "@builder.io/qwik-city";
+import { useAuth } from "~/lib/auth";
 import PlatformLayout from "~/components/platform/PlatformLayout";
 
 interface Reply {
@@ -15,9 +16,9 @@ const replies: Reply[] = [
 ];
 
 export default component$(() => {
+  const user = useAuth();
   useVisibleTask$(() => {
-    const member = localStorage.getItem("kf13-member");
-    if (!member) window.location.replace("/mulai");
+    if (!user.value) window.location.replace("/login");
   });
 
   return (

@@ -1,5 +1,6 @@
 import { component$, useVisibleTask$ } from "@builder.io/qwik";
 import type { DocumentHead } from "@builder.io/qwik-city";
+import { useAuth } from "~/lib/auth";
 import PlatformLayout from "~/components/platform/PlatformLayout";
 
 const threadTypes = [
@@ -19,9 +20,9 @@ const categories = [
 ];
 
 export default component$(() => {
+  const user = useAuth();
   useVisibleTask$(() => {
-    const member = localStorage.getItem("kf13-member");
-    if (!member) window.location.replace("/mulai");
+    if (!user.value) window.location.replace("/login");
   });
 
   return (
@@ -59,14 +60,14 @@ export default component$(() => {
             <select name="category" class="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" required>
               <option value="">Pilih kategori...</option>
               {categories.map((cat) => (
-                <option value={cat.id} key={cat.id}>{cat.icon} {cat.label}</option>
+                <option value={cat.id} key={cat.id}>{`${cat.icon} ${cat.label}`}</option>
               ))}
             </select>
           </div>
 
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">Judul Thread</label>
-            <input type="text" name="title" placeholder="Tulis judul yang menarik dan deskriptif..." class="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" maxlength={100} required />
+            <input type="text" name="title" placeholder="Tulis judul yang menarik dan deskriptif..." class="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" maxLength={100} required />
             <div class="text-xs text-gray-400 mt-1">Maksimal 100 karakter</div>
           </div>
 

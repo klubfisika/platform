@@ -14,9 +14,9 @@ export const MESSAGE_DROPDOWN_LABELS = {
   buttonTitle: 'Pesan',
   markAllRead: 'Tandai Dibaca',
   writeNew: 'Tulis Baru',
-  writeNewHref: '/platform/messages/new',
+  writeNewHref: '/messages/new',
   viewAll: 'Lihat Semua Pesan',
-  viewAllHref: '/platform/messages',
+  viewAllHref: '/messages',
   emptyState: 'Belum ada pesan',
   unreadCountMax: '9+'
 };

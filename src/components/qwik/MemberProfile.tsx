@@ -1,43 +1,32 @@
-import { component$, useSignal, useStore, useVisibleTask$, $ } from '@builder.io/qwik';
-import { turso } from '~/lib/turso';
+import { component$, useSignal, useStore, $, useVisibleTask$ } from '@builder.io/qwik';
+import { getMemberByEmail, updateMember } from '~/lib/db';
 
-interface Member {
-  name: string;
-  email: string;
-  year: string;
-  major: string;
+interface Props {
+  user: { name: string; email: string };
 }
 
-export default component$(() => {
-  const member = useStore<Member>({
-    name: '',
-    email: '',
+export default component$<Props>(({ user }) => {
+  const member = useStore({
+    name: user.name || '',
+    email: user.email || '',
     year: '',
     major: ''
   });
-  
+
   const isEditing = useSignal(false);
   const isLoading = useSignal(true);
 
   useVisibleTask$(async () => {
     try {
-      const local = localStorage.getItem('kf13-member');
-      if (local) {
-        const { email } = JSON.parse(local);
-        const result = await turso.execute({
-          sql: 'SELECT name, email, year, major FROM members WHERE email = ?',
-          args: [email]
-        });
-        if (result.rows.length > 0) {
-          const row = result.rows[0];
-          member.name = row.name as string || '';
-          member.email = row.email as string || '';
-          member.year = row.year as string || '';
-          member.major = row.major as string || '';
-        }
+      const row = await getMemberByEmail(user.email);
+      if (row) {
+        member.name = (row as any).name || user.name || '';
+        member.email = (row as any).email || user.email || '';
+        member.year = (row as any).year || '';
+        member.major = (row as any).major || '';
       }
-    } catch (e) {
-      console.log('Failed to load member');
+    } catch {
+      console.error('Failed to load member');
     }
     isLoading.value = false;
   });
@@ -45,13 +34,13 @@ export default component$(() => {
   const saveProfile = $(async () => {
     isLoading.value = true;
     try {
-      await turso.execute({
-        sql: 'UPDATE members SET name = ?, year = ?, major = ? WHERE email = ?',
-        args: [member.name, member.year, member.major, member.email]
+      await updateMember(member.email, {
+        name: member.name,
+        year: member.year,
+        major: member.major
       });
-      localStorage.setItem('kf13-member', JSON.stringify({ name: member.name, email: member.email }));
       isEditing.value = false;
-    } catch (e) {
+    } catch {
       console.error('Failed to save');
     }
     isLoading.value = false;
@@ -64,7 +53,7 @@ export default component$(() => {
   return (
     <div class="bg-white p-6 rounded-lg shadow-lg">
       <h2 class="text-2xl font-bold mb-4">Member Profile</h2>
-      
+
       {isEditing.value ? (
         <form class="space-y-4" preventdefault:submit onSubmit$={saveProfile}>
           <input type="text" placeholder="Name" value={member.name}

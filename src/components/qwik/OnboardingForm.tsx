@@ -1,5 +1,12 @@
-import { component$, useSignal, useStore, $, useTask$ } from '@builder.io/qwik';
-import { turso, initDB } from '~/lib/turso';
+import { component$, useSignal, useStore, $ } from '@builder.io/qwik';
+import { registerMember } from '~/lib/db';
+import InstitutionPicker from './InstitutionPicker';
+import MajorPicker from './MajorPicker';
+
+interface Props {
+  userEmail?: string;
+  userName?: string;
+}
 
 interface OnboardingData {
   name: string;
@@ -12,10 +19,10 @@ interface OnboardingData {
   interests: string[];
 }
 
-export default component$(() => {
+export default component$<Props>(({ userEmail, userName }) => {
   const formData = useStore<OnboardingData>({
-    name: '',
-    email: '',
+    name: userName || '',
+    email: userEmail || '',
     phone: '',
     year: '',
     major: '',
@@ -23,22 +30,12 @@ export default component$(() => {
     motivation: '',
     interests: []
   });
-  
+
   const isSubmitting = useSignal(false);
   const isSuccess = useSignal(false);
   const errorMsg = useSignal('');
   const currentStep = useSignal(1);
   const emailError = useSignal('');
-  
-  // Load saved email on component mount
-  useTask$(() => {
-    if (typeof window !== 'undefined') {
-      const savedEmail = localStorage.getItem('kf13-email');
-      if (savedEmail) {
-        formData.email = savedEmail;
-      }
-    }
-  });
 
   const interests = [
     'Mekanika', 'Termodinamika', 'Elektromagnetisme', 'Fisika Modern',
@@ -62,10 +59,6 @@ export default component$(() => {
       emailError.value = 'Format email tidak valid';
     } else {
       emailError.value = '';
-      // Save valid email to localStorage
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('kf13-email', email);
-      }
     }
   });
 
@@ -77,7 +70,7 @@ export default component$(() => {
     if (e.key === 'Enter' && currentStep.value < 3) {
       const isStep1Valid = currentStep.value === 1 && !emailError.value && formData.name && formData.email && formData.phone;
       const isStep2Valid = currentStep.value === 2 && formData.year && formData.major && formData.university;
-      
+
       if (isStep1Valid || isStep2Valid) {
         nextStep();
       }
@@ -92,26 +85,20 @@ export default component$(() => {
     isSubmitting.value = true;
     errorMsg.value = '';
     try {
-      await initDB();
-      await turso.execute({
-        sql: `INSERT INTO members (name, email, phone, year, major, university, motivation, interests) 
-              VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        args: [
-          formData.name,
-          formData.email,
-          formData.phone,
-          formData.year,
-          formData.major,
-          formData.university,
-          formData.motivation,
-          formData.interests.join(', ')
-        ]
+      await registerMember({
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        year: formData.year,
+        major: formData.major,
+        university: formData.university,
+        motivation: formData.motivation,
+        interests: formData.interests.join(', ')
       });
-      localStorage.setItem('kf13-member', JSON.stringify({ name: formData.name, email: formData.email }));
       isSuccess.value = true;
     } catch (error: any) {
-      errorMsg.value = error.message?.includes('UNIQUE') 
-        ? 'Email sudah terdaftar!' 
+      errorMsg.value = error.message?.includes('unique') || error.message?.includes('UNIQUE')
+        ? 'Email sudah terdaftar!'
         : 'Gagal mendaftar. Silakan coba lagi.';
     }
     isSubmitting.value = false;
@@ -140,7 +127,7 @@ export default component$(() => {
           <span class="text-sm text-gray-500">{Math.round((currentStep.value / 3) * 100)}%</span>
         </div>
         <div class="w-full bg-gray-200 rounded-full h-2">
-          <div 
+          <div
             class="bg-blue-600 h-2 rounded-full transition-all duration-500 ease-out"
             style={`width: ${(currentStep.value / 3) * 100}%`}
           ></div>
@@ -174,8 +161,8 @@ export default component$(() => {
                 validateEmail(email);
               }}
               class={`w-full p-3 border rounded-xl outline-none transition-all duration-200 focus:shadow-lg focus:scale-[1.01] ${
-                emailError.value 
-                  ? 'border-red-300 focus:ring-2 focus:ring-red-500 focus:border-transparent' 
+                emailError.value
+                  ? 'border-red-300 focus:ring-2 focus:ring-red-500 focus:border-transparent'
                   : 'border-gray-200 focus:ring-2 focus:ring-green-500 focus:border-transparent'
               }`}
               required
@@ -217,21 +204,15 @@ export default component$(() => {
               <option value="2022">2022</option>
               <option value="2021">2021</option>
             </select>
-            <input
-              type="text"
-              placeholder="Jurusan"
+            <MajorPicker
               value={formData.major}
-              onInput$={(e) => formData.major = (e.target as HTMLInputElement).value}
-              class="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition"
-              required
+              onChange$={$((val: string) => formData.major = val)}
+              placeholder="Jurusan"
             />
-            <input
-              type="text"
-              placeholder="Universitas/Sekolah"
+            <InstitutionPicker
               value={formData.university}
-              onInput$={(e) => formData.university = (e.target as HTMLInputElement).value}
-              class="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition"
-              required
+              onChange$={$((val: string) => formData.university = val)}
+              placeholder="Universitas/Sekolah"
             />
             <div class="flex space-x-4">
               <button

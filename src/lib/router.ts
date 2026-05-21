@@ -4,14 +4,15 @@ const SESSION_KEY = 'kf13-member';
 // Route constants - single source of truth
 export const ROUTES = {
   GUEST_HOME: '/mulai',
-  MEMBER_HOME: '/platform/feed',
-  OVERVIEW: '/platform/overview',
-  FEED: '/platform/feed',
-  DISCUSSIONS: '/platform/discussions',
-  PROJECTS: '/platform/projects',
-  SHORTS: '/platform/shorts',
-  EXPLORE: '/platform/explore',
-  PROFILE: '/platform/profile',
+  MEMBER_HOME: '/feed',
+  OVERVIEW: '/overview',
+  FEED: '/feed',
+  DISCUSSIONS: '/discussions',
+  PROJECTS: '/projects',
+  COMPETITIONS: '/competitions',
+  SHORTS: '/shorts',
+  EXPLORE: '/explore',
+  PROFILE: '/profile',
 } as const;
 
 export const hasSession = () => !!localStorage.getItem(SESSION_KEY);

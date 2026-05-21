@@ -41,7 +41,7 @@ interface Props {
 export default component$<Props>(({ thread }) => {
   return (
     <a 
-      href={`/platform/discussions/${thread.id}`}
+      href={`/discussions/${thread.id}`}
       class={`grid grid-cols-12 gap-4 px-4 py-4 border-b border-gray-50 hover:bg-gray-50/80 transition cursor-pointer ${getThreadBgClass(thread)}`}
     >
       {/* Topic */}

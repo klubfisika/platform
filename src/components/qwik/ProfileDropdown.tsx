@@ -24,12 +24,14 @@ export default component$(() => {
     isOpen.value = false;
   });
 
-  const logout = $(() => {
-    localStorage.removeItem('kf13-member');
-    window.location.href = PROFILE_DROPDOWN_LABELS.loginHref;
+  const logout = $(async () => {
+    try {
+      await fetch("/api/logout", { method: "POST" });
+    } catch { console.error("Logout failed"); }
+    localStorage.removeItem("kf13-member");
+    window.location.href = "/login";
   });
 
-  // Show login button if no user
   if (!user.value) {
     return (
       <a href={PROFILE_DROPDOWN_LABELS.loginHref} class={PROFILE_DROPDOWN_STYLES.loginButton}>
@@ -52,14 +54,14 @@ export default component$(() => {
       
       {isOpen.value && (
         <>
-          {/* Backdrop */}
+          {/* Backdrop - dark on mobile, transparent on desktop */}
           <div 
-            class={PROFILE_DROPDOWN_STYLES.backdrop}
+            class="fixed inset-0 z-40 bg-black/40 backdrop-blur-xs sm:bg-transparent"
             onClick$={closeDropdown}
           />
           
-          {/* Dropdown */}
-          <div class={`${PROFILE_DROPDOWN_STYLES.dropdown} ${PROFILE_DROPDOWN_CONFIG.dropdownWidth} ${PROFILE_DROPDOWN_CONFIG.animation}`}>
+          {/* Desktop dropdown */}
+          <div class={`hidden sm:block ${PROFILE_DROPDOWN_STYLES.dropdown} ${PROFILE_DROPDOWN_CONFIG.dropdownWidth} ${PROFILE_DROPDOWN_CONFIG.animation}`}>
             <div class={PROFILE_DROPDOWN_STYLES.userInfo}>
               <div class={PROFILE_DROPDOWN_STYLES.userName}>{user.value.name}</div>
               <div class={PROFILE_DROPDOWN_STYLES.userHandle}>@{user.value.username}</div>
@@ -84,6 +86,48 @@ export default component$(() => {
             >
               <span>{PROFILE_DROPDOWN_LABELS.logoutIcon}</span> {PROFILE_DROPDOWN_LABELS.logoutLabel}
             </button>
+          </div>
+
+          {/* Mobile bottom sheet */}
+          <div class="sm:hidden fixed bottom-0 left-0 right-0 w-full bg-white rounded-t-3xl shadow-2xl z-50 py-4 pb-8 border-t border-gray-100 animate-in slide-in-from-bottom duration-300" style="padding-bottom: env(safe-area-inset-bottom, 2rem);">
+            {/* Grabber bar */}
+            <div class="w-12 h-1 bg-gray-200 rounded-full mx-auto mb-4" />
+            
+            <div class="px-4">
+              {/* User info header */}
+              <div class="flex items-center gap-3 px-4 py-3 mb-2 bg-gray-50 rounded-xl">
+                <div class={`w-12 h-12 rounded-full flex items-center justify-center text-white text-lg font-bold shadow ${PROFILE_DROPDOWN_CONFIG.avatarBg}`}>
+                  {getUserInitial(user.value.name)}
+                </div>
+                <div>
+                  <p class="font-semibold text-gray-900">{user.value.name}</p>
+                  <p class="text-sm text-gray-500">@{user.value.username}</p>
+                </div>
+              </div>
+              
+              {/* Menu items */}
+              {PROFILE_DROPDOWN_MENU_ITEMS.map(item => (
+                <a 
+                  key={item.label}
+                  href={item.type === 'dynamic' ? item.href(user.value!.username) : item.href}
+                  class="flex items-center gap-3 px-4 py-4 hover:bg-gray-50 rounded-xl transition active:bg-gray-100"
+                  onClick$={closeDropdown}
+                >
+                  <span class="text-xl">{item.icon}</span>
+                  <span class="text-base font-medium text-gray-900">{item.label}</span>
+                </a>
+              ))}
+              
+              <hr class="my-2 border-gray-100" />
+              
+              <button 
+                onClick$={logout}
+                class="w-full flex items-center gap-3 px-4 py-4 hover:bg-red-50 rounded-xl transition active:bg-red-100 text-red-600"
+              >
+                <span class="text-xl">{PROFILE_DROPDOWN_LABELS.logoutIcon}</span>
+                <span class="text-base font-medium">{PROFILE_DROPDOWN_LABELS.logoutLabel}</span>
+              </button>
+            </div>
           </div>
         </>
       )}

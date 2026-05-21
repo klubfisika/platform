@@ -6,19 +6,19 @@ export const PROFILE_DROPDOWN_CONFIG = {
 
 export const PROFILE_DROPDOWN_MENU_ITEMS = [
   { 
-    href: '/platform/profile', 
+    href: '/profile', 
     label: 'Profil Saya', 
     icon: '👤',
     type: 'link' as const
   },
   { 
-    href: (username: string) => `/${username}`, 
+    href: (username: string) => `/u/${username}`, 
     label: 'Profil Publik', 
     icon: '🔗',
     type: 'dynamic' as const
   },
   { 
-    href: '/platform/overview', 
+    href: '/overview', 
     label: 'Overview', 
     icon: '📊',
     type: 'link' as const

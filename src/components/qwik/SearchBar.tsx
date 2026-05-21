@@ -1,8 +1,8 @@
-import { component$, useSignal, $ } from '@builder.io/qwik';
+import { component$, useSignal, $, type QRL } from '@builder.io/qwik';
 
 interface Props {
   placeholder?: string;
-  onSearch?: (query: string) => void;
+  onSearch?: QRL<(query: string) => void>;
 }
 
 export default component$<Props>(({ placeholder = "Cari diskusi, proyek, atau member...", onSearch }) => {
@@ -13,8 +13,7 @@ export default component$<Props>(({ placeholder = "Cari diskusi, proyek, atau me
     if (onSearch) {
       onSearch(query.value);
     } else {
-      // Default search behavior - could redirect to search page
-      window.location.href = `/platform/explore?q=${encodeURIComponent(query.value)}`;
+      window.location.href = `/explore?q=${encodeURIComponent(query.value)}`;
     }
   });
 
