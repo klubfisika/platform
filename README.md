@@ -12,12 +12,12 @@
 
 <p align="center">
   <a href="https://community.klubfisika.or.id"><img src="https://img.shields.io/badge/live-community.klubfisika.or.id-065f46?style=flat-square" alt="Live"></a>
-  <a href="https://github.com/klubfisika/community"><img src="https://img.shields.io/badge/monorepo-klubfisika/community-6366f1?style=flat-square" alt="Monorepo"></a>
-  <img src="https://img.shields.io/badge/framework-Qwik_City-ac7ef4?style=flat-square&logo=qwik" alt="Qwik">
-  <img src="https://img.shields.io/badge/language-TypeScript-3178c6?style=flat-square&logo=typescript" alt="TypeScript">
-  <img src="https://img.shields.io/badge/styling-Tailwind_CSS_4-06b6d4?style=flat-square&logo=tailwindcss" alt="Tailwind">
-  <img src="https://img.shields.io/badge/database-Neon_PostgreSQL-00e599?style=flat-square" alt="Neon">
-  <img src="https://img.shields.io/badge/deploy-Vercel_Edge-000000?style=flat-square&logo=vercel" alt="Vercel">
+  <a href="https://github.com/klubfisika/community"><img src="https://img.shields.io/badge/monorepo-klubfisika%2Fcommunity-6366f1?style=flat-square&logo=github&logoColor=white" alt="Monorepo"></a>
+  <img src="https://img.shields.io/badge/framework-Qwik_City-ac7ef4?style=flat-square&logo=qwik&logoColor=white" alt="Qwik">
+  <img src="https://img.shields.io/badge/language-TypeScript-3178c6?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript">
+  <img src="https://img.shields.io/badge/styling-Tailwind_CSS_4-06b6d4?style=flat-square&logo=tailwindcss&logoColor=white" alt="Tailwind">
+  <img src="https://img.shields.io/badge/database-Neon_PostgreSQL-00e599?style=flat-square&logo=postgresql&logoColor=white" alt="Neon">
+  <img src="https://img.shields.io/badge/deploy-Vercel_Edge-000000?style=flat-square&logo=vercel&logoColor=white" alt="Vercel">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square" alt="MIT"></a>
 </p>
 
