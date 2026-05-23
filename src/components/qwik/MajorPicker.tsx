@@ -1,4 +1,9 @@
-import { component$, useSignal, useVisibleTask$, type QRL } from "@builder.io/qwik";
+import {
+  component$,
+  useSignal,
+  useTask$,
+  type QRL,
+} from "@builder.io/qwik";
 import { fetchPhysicsSpecializations } from "~/lib/datasets";
 
 interface Props {
@@ -14,7 +19,7 @@ export default component$<Props>(({ value, onChange$, placeholder }) => {
   const isOpen = useSignal(false);
   const isLoading = useSignal(true);
 
-  useVisibleTask$(async () => {
+  useTask$(async () => {
     items.value = await fetchPhysicsSpecializations();
     isLoading.value = false;
   });
@@ -29,17 +34,25 @@ export default component$<Props>(({ value, onChange$, placeholder }) => {
           const q = val.toLowerCase();
           query.value = val;
           await onChange$(val);
-          suggestions.value = items.value.filter((item) => item.toLowerCase().includes(q)).slice(0, 10);
+          suggestions.value = items.value
+            .filter((item) => item.toLowerCase().includes(q))
+            .slice(0, 10);
           isOpen.value = suggestions.value.length > 0;
         }}
         onFocus$={() => {
           if (query.value) {
             const q = query.value.toLowerCase();
-            suggestions.value = items.value.filter((item) => item.toLowerCase().includes(q)).slice(0, 10);
+            suggestions.value = items.value
+              .filter((item) => item.toLowerCase().includes(q))
+              .slice(0, 10);
             isOpen.value = suggestions.value.length > 0;
           }
         }}
-        onBlur$={() => setTimeout(() => { isOpen.value = false; }, 200)}
+        onBlur$={() =>
+          setTimeout(() => {
+            isOpen.value = false;
+          }, 200)
+        }
         placeholder={placeholder || "Cari jurusan..."}
         class="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
         autocomplete="off"

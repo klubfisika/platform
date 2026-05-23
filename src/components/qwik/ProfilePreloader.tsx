@@ -1,4 +1,4 @@
-import { component$, useSignal, useTask$ } from '@builder.io/qwik';
+import { component$, useSignal, useTask$ } from "@builder.io/qwik";
 
 interface Props {
   username: string;
@@ -16,7 +16,7 @@ export const ProfilePreloader = component$<Props>(({ username }) => {
         profileData.value = await response.json();
       }
     } catch (error) {
-      console.warn('Profile preload failed:', error);
+      console.warn("Profile preload failed:", error);
     } finally {
       isLoading.value = false;
     }
@@ -26,8 +26,8 @@ export const ProfilePreloader = component$<Props>(({ username }) => {
     <div class="hidden" data-preload={username}>
       {/* Preloaded data for instant navigation */}
       {profileData.value && (
-        <script 
-          type="application/json" 
+        <script
+          type="application/json"
           dangerouslySetInnerHTML={JSON.stringify(profileData.value)}
         />
       )}

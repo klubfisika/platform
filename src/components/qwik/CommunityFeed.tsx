@@ -1,5 +1,11 @@
-import { component$, useSignal, useStore, useVisibleTask$, $ } from '@builder.io/qwik';
-import { getPosts, createPost, addLike } from '~/lib/db';
+import {
+  component$,
+  useSignal,
+  useStore,
+  useTask$,
+  $,
+} from "@builder.io/qwik";
+import { getPosts, createPost, addLike } from "~/lib/db";
 
 interface Post {
   id: number;
@@ -10,58 +16,64 @@ interface Post {
 }
 
 interface Props {
-  currentUser?: string;
+  currentUserId?: string;
 }
 
-export default component$<Props>(({ currentUser }) => {
+export default component$<Props>(({ currentUserId }) => {
   const posts = useStore<Post[]>([]);
-  const newPost = useSignal('');
+  const newPost = useSignal("");
   const isLoading = useSignal(true);
 
-  useVisibleTask$(async () => {
+  useTask$(async () => {
     try {
       const rows = await getPosts(20);
       if (rows) {
-        posts.splice(0, posts.length, ...rows.map((row: any) => ({
-          id: row.id as number,
-          author: row.author_name as string,
-          content: row.content as string,
-          created_at: new Date(row.created_at as string).toLocaleString('id-ID'),
-          likes: (row.cendol_count as number) || 0
-        })));
+        posts.splice(
+          0,
+          posts.length,
+          ...rows.map((row) => ({
+            id: row.id,
+            author: row.authorName || "Unknown",
+            content: row.content,
+            created_at: row.createdAt
+              ? new Date(row.createdAt).toLocaleString("id-ID")
+              : "",
+            likes: row.cendolCount || 0,
+          })),
+        );
       }
     } catch {
-      console.error('Failed to load posts');
+      console.error("Failed to load posts");
     }
     isLoading.value = false;
   });
 
   const handleAddPost = $(async () => {
-    if (!newPost.value.trim() || !currentUser) return;
+    if (!newPost.value.trim() || !currentUserId) return;
     try {
-      const row = await createPost(currentUser, newPost.value);
+      const row = await createPost(currentUserId, newPost.value);
       if (row) {
         posts.unshift({
-          id: row.id as number,
-          author: currentUser,
+          id: row.id,
+          author: "Anda",
           content: newPost.value,
-          created_at: 'Baru saja',
-          likes: 0
+          created_at: "Baru saja",
+          likes: 0,
         });
       }
-      newPost.value = '';
+      newPost.value = "";
     } catch {
-      console.error('Failed to post');
+      console.error("Failed to post");
     }
   });
 
   const likePost = $(async (id: number) => {
     try {
       await addLike(id);
-      const post = posts.find(p => p.id === id);
+      const post = posts.find((p) => p.id === id);
       if (post) post.likes++;
     } catch {
-      console.error('Failed to add like');
+      console.error("Failed to add like");
     }
   });
 
@@ -72,11 +84,19 @@ export default component$<Props>(({ currentUser }) => {
   return (
     <div class="max-w-2xl mx-auto space-y-6">
       <div class="bg-white p-4 rounded-lg shadow">
-        <textarea value={newPost.value}
-          onInput$={(e) => newPost.value = (e.target as HTMLTextAreaElement).value}
+        <textarea
+          value={newPost.value}
+          onInput$={(e) =>
+            (newPost.value = (e.target as HTMLTextAreaElement).value)
+          }
           placeholder="Share something with the KF13 community..."
-          class="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition resize-none" rows={3} />
-        <button onClick$={handleAddPost} class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+          class="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition resize-none"
+          rows={3}
+        />
+        <button
+          onClick$={handleAddPost}
+          class="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+        >
           Post
         </button>
       </div>
@@ -89,7 +109,10 @@ export default component$<Props>(({ currentUser }) => {
               <span class="text-sm text-gray-500">{post.created_at}</span>
             </div>
             <p class="mb-3">{post.content}</p>
-            <button onClick$={() => likePost(post.id)} class="text-sm text-gray-600 hover:text-blue-600">
+            <button
+              onClick$={() => likePost(post.id)}
+              class="text-sm text-gray-600 hover:text-blue-600"
+            >
               👍 {post.likes} likes
             </button>
           </div>

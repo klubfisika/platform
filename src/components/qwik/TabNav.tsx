@@ -1,4 +1,4 @@
-import { component$, useSignal, $ } from '@builder.io/qwik';
+import { component$, useSignal, $ } from "@builder.io/qwik";
 
 interface Tab {
   id: string;
@@ -27,11 +27,11 @@ export default component$<Props>(({ tabs, activeTab = tabs[0]?.id }) => {
             key={tab.id}
             onClick$={() => handleTabClick(tab.id)}
             class={`px-4 py-3 font-medium transition whitespace-nowrap ${
-              index > 0 ? 'border-l border-gray-100' : ''
+              index > 0 ? "border-l border-gray-100" : ""
             } ${
               currentTab.value === tab.id
-                ? 'bg-green-50 text-green-700 border-b-2 border-green-600'
-                : 'text-gray-600 hover:bg-gray-50'
+                ? "bg-green-50 text-green-700 border-b-2 border-green-600"
+                : "text-gray-600 hover:bg-gray-50"
             }`}
           >
             {tab.icon} {tab.label}

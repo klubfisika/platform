@@ -12,7 +12,13 @@ export default component$(() => {
       <div class="max-w-7xl mx-auto px-4">
         <div class="flex items-center justify-between h-14">
           <a href="/" class="flex items-center gap-2 font-bold text-blue-800">
-            <img src={kf13Logo} alt="KF13" width={36} height={36} class="rounded-lg" />
+            <img
+              src={kf13Logo}
+              alt="KF13"
+              width={36}
+              height={36}
+              class="rounded-lg"
+            />
             <span class="hidden sm:block text-xl">KF13</span>
           </a>
 

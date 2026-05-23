@@ -2,15 +2,17 @@ import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { getDb, schema } from './db';
 
-let authInstance: ReturnType<typeof betterAuth> | null = null;
+import { sql } from 'drizzle-orm';
+
+let authInstance: any = null;
 
 function getEnv(key: string): string {
-  if (typeof process !== 'undefined' && process.env[key]) return process.env[key];
+  if (typeof process !== 'undefined' && process.env[key]) return process.env[key] as string;
   if (typeof import.meta !== 'undefined' && (import.meta as any).env?.[key]) return (import.meta as any).env[key];
   return '';
 }
 
-export function getAuth() {
+export function getAuth(): any {
   if (authInstance) return authInstance;
 
   const origin = getEnv('ORIGIN') || 'http://localhost:5173';
@@ -84,10 +86,7 @@ export function getAuth() {
             const d = getDb();
             const userId = newUser.id;
             try {
-              await d.execute(
-                `INSERT INTO profiles (user_id) VALUES ($1) ON CONFLICT (user_id) DO NOTHING`,
-                [userId]
-              );
+              await d.execute(sql`INSERT INTO profiles (user_id) VALUES (${userId}) ON CONFLICT (user_id) DO NOTHING`);
             } catch {
               void 0;
             }
@@ -99,3 +98,5 @@ export function getAuth() {
 
   return authInstance;
 }
+
+export { useAuth } from './router';

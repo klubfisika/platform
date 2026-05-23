@@ -2,6 +2,7 @@ import { component$, Slot } from "@builder.io/qwik";
 import { RequestHandler } from "@builder.io/qwik-city";
 
 export { RouterHead as routerHead } from "~/components/router-head/router-head";
+export { useAuth } from "~/lib/auth";
 
 export const onRequest: RequestHandler = ({ headers }) => {
   headers.set("X-Frame-Options", "DENY");

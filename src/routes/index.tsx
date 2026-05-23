@@ -1,15 +1,17 @@
-import { component$, useVisibleTask$ } from "@builder.io/qwik";
-import type { DocumentHead } from "@builder.io/qwik-city";
+import { component$ } from "@builder.io/qwik";
+import { routeLoader$ } from "@builder.io/qwik-city";
+import { useAuth } from "~/lib/auth";
+
+export const useIndexRedirect = routeLoader$(async (event) => {
+  const user = await event.resolveValue(useAuth);
+  if (user) {
+    throw event.redirect(302, "/feed");
+  } else {
+    throw event.redirect(302, "/mulai");
+  }
+});
 
 export default component$(() => {
-  useVisibleTask$(() => {
-    if (document.cookie.includes("kf13-session")) {
-      window.location.replace("/feed");
-    } else {
-      window.location.replace("/mulai");
-    }
-  });
-
   return (
     <div id="splash" class="flex items-center justify-center min-h-[60vh]">
       <div class="text-center">
@@ -20,12 +22,13 @@ export default component$(() => {
   );
 });
 
-export const head: DocumentHead = {
+export const head = {
   title: "KF13 Community Platform",
   meta: [
     {
       name: "description",
-      content: "Platform komunitas Klub Fisika Indonesia - Research, inovasi, dan kolaborasi ilmiah",
+      content:
+        "Platform komunitas Klub Fisika Indonesia - Research, inovasi, dan kolaborasi ilmiah",
     },
   ],
 };

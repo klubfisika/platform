@@ -1,4 +1,9 @@
-import { component$, useSignal, useVisibleTask$, type QRL } from "@builder.io/qwik";
+import {
+  component$,
+  useSignal,
+  useTask$,
+  type QRL,
+} from "@builder.io/qwik";
 import { fetchInstitutions, searchInstitutions } from "~/lib/datasets";
 
 interface Props {
@@ -14,7 +19,7 @@ export default component$<Props>(({ value, onChange$, placeholder }) => {
   const isOpen = useSignal(false);
   const isLoading = useSignal(true);
 
-  useVisibleTask$(async () => {
+  useTask$(async () => {
     institutions.value = await fetchInstitutions();
     isLoading.value = false;
   });
@@ -33,11 +38,18 @@ export default component$<Props>(({ value, onChange$, placeholder }) => {
         }}
         onFocus$={() => {
           if (query.value && institutions.value.length > 0) {
-            suggestions.value = searchInstitutions(query.value, institutions.value);
+            suggestions.value = searchInstitutions(
+              query.value,
+              institutions.value,
+            );
             isOpen.value = suggestions.value.length > 0;
           }
         }}
-        onBlur$={() => setTimeout(() => { isOpen.value = false; }, 200)}
+        onBlur$={() =>
+          setTimeout(() => {
+            isOpen.value = false;
+          }, 200)
+        }
         placeholder={placeholder || "Cari institusi..."}
         class="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
         autocomplete="off"

@@ -1,21 +1,35 @@
+import type { RequestHandler } from "@builder.io/qwik-city";
 import { routeAction$ } from "@builder.io/qwik-city";
-import { neon } from "@neondatabase/serverless";
+import { getAuth } from "~/lib/auth";
 
-function db() {
-  const url = process.env.NEON_DATABASE_URL || (import.meta as any).env?.NEON_DATABASE_URL;
-  return neon(url);
-}
+export const onPost: RequestHandler = async (event) => {
+  const auth = getAuth();
 
-export const useLogoutAction = routeAction$(async (_data, req) => {
-  const token = req.cookie.get("kf13-session")?.value;
-  if (token) {
-    try {
-      const d = db();
-      await d`DELETE FROM sessions WHERE token = ${token}`;
-    } catch { console.error("Failed to delete session token"); }
+  try {
+    await auth.api.signOut({
+      headers: event.request.headers,
+    });
+  } catch (e) {
+    console.error("Better Auth signOut failed:", e);
   }
 
-  req.cookie.delete("kf13-session", { path: "/" });
+  event.cookie.delete("kf13.session_token", { path: "/" });
+
+  event.json(200, { success: true });
+};
+
+export const useLogoutAction = routeAction$(async (_data, req) => {
+  const auth = getAuth();
+
+  try {
+    await auth.api.signOut({
+      headers: req.request.headers,
+    });
+  } catch (e) {
+    console.error("Better Auth signOut failed:", e);
+  }
+
+  req.cookie.delete("kf13.session_token", { path: "/" });
 
   return { success: true };
 });

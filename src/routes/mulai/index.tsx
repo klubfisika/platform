@@ -7,7 +7,9 @@ export default component$(() => {
       <div class="max-w-lg w-full bg-white rounded-3xl shadow-2xl p-8 text-center">
         <div class="text-6xl mb-6">🚀</div>
         <h1 class="text-3xl font-bold text-gray-900 mb-3">KF13 Platform</h1>
-        <p class="text-gray-500 mb-8">Platform komunitas Klub Fisika Indonesia</p>
+        <p class="text-gray-500 mb-8">
+          Platform komunitas Klub Fisika Indonesia
+        </p>
 
         <div class="space-y-3">
           <a
@@ -35,6 +37,9 @@ export default component$(() => {
 export const head: DocumentHead = {
   title: "KF13 Platform",
   meta: [
-    { name: "description", content: "Platform komunitas Klub Fisika Indonesia" }
-  ]
+    {
+      name: "description",
+      content: "Platform komunitas Klub Fisika Indonesia",
+    },
+  ],
 };

@@ -1,37 +1,87 @@
-import { component$, useSignal, $ } from '@builder.io/qwik';
-import { mockNotifications, getNotificationIcon, getNotificationColor, markAllNotificationsAsRead } from '~/data/mockNotifications';
-import {
-  NOTIFICATION_DROPDOWN_CONFIG,
-  NOTIFICATION_DROPDOWN_LABELS,
-  NOTIFICATION_DROPDOWN_STYLES,
-  getUnreadCount,
-  formatUnreadCount,
-  getNotificationItemClass
-} from '~/data/notificationDropdownConfig';
+import { component$, useSignal, $ } from "@builder.io/qwik";
+// Inline notification helper functions (replaced mock import)
+const getNotificationIcon = (type: string): string => {
+  const icons: Record<string, string> = {
+    cendol: "🍵",
+    reply: "💬",
+    mention: "📢",
+    follow: "👤",
+    thread_reply: "🔥",
+    quote: "💭",
+  };
+  return icons[type] ?? "🔔";
+};
+
+const getNotificationColor = (type: string): string => {
+  const colors: Record<string, string> = {
+    cendol: "text-green-600",
+    reply: "text-blue-600",
+    mention: "text-orange-600",
+    follow: "text-purple-600",
+    thread_reply: "text-red-600",
+    quote: "text-indigo-600",
+  };
+  return colors[type] ?? "text-gray-600";
+};
 
 export default component$(() => {
   const isOpen = useSignal(false);
-  const notifications = useSignal([...mockNotifications]);
+  const notifications = useSignal<any[]>([]);
+  const unreadCount = useSignal(0);
+  const isLoading = useSignal(true);
 
-  const unreadCount = getUnreadCount(notifications.value);
+  const loadNotifications = $(async () => {
+    if (!isOpen.value) return;
+    isLoading.value = true;
+    try {
+      const res = await fetch("/api/notifications");
+      const data = await res.json();
+      if (data.notifications) {
+        notifications.value = data.notifications;
+        unreadCount.value = data.unreadCount;
+      }
+    } catch (e) {
+      console.error("Failed to load notifications:", e);
+    }
+    isLoading.value = false;
+  });
 
   const toggleDropdown = $(() => {
     isOpen.value = !isOpen.value;
+    if (isOpen.value) {
+      loadNotifications();
+    }
   });
 
   const closeDropdown = $(() => {
     isOpen.value = false;
   });
 
-  const markAllRead = $(() => {
-    notifications.value = notifications.value.map(n => ({ ...n, read: true }));
-    markAllNotificationsAsRead();
+  const markAllRead = $(async () => {
+    try {
+      await fetch("/api/notifications?action=markAllRead", { method: "POST" });
+      notifications.value = notifications.value.map((n) => ({
+        ...n,
+        read: true,
+      }));
+      unreadCount.value = 0;
+    } catch (e) {
+      console.error("Failed to mark all read:", e);
+    }
   });
 
-  const markAsRead = $((id: string) => {
-    notifications.value = notifications.value.map(n => 
-      n.id === id ? { ...n, read: true } : n
-    );
+  const markAsRead = $(async (id: number) => {
+    try {
+      await fetch(`/api/notifications?action=markRead&id=${id}`, {
+        method: "POST",
+      });
+      notifications.value = notifications.value.map((n) =>
+        n.id === id ? { ...n, read: true } : n,
+      );
+      unreadCount.value = Math.max(0, unreadCount.value - 1);
+    } catch (e) {
+      console.error("Failed to mark as read:", e);
+    }
   });
 
   const handleNotificationClick = $((notification: any) => {
@@ -46,84 +96,92 @@ export default component$(() => {
 
   return (
     <div class="relative">
-      <button 
+      <button
         onClick$={toggleDropdown}
-        class={NOTIFICATION_DROPDOWN_STYLES.button}
-        title={NOTIFICATION_DROPDOWN_LABELS.buttonTitle}
+        class="relative p-2 rounded-full hover:bg-gray-100 transition"
+        title="Notifications"
       >
-        <span class={NOTIFICATION_DROPDOWN_STYLES.icon}>🔔</span>
-        {unreadCount > 0 && (
-          <span class={NOTIFICATION_DROPDOWN_STYLES.badge}>
-            {formatUnreadCount(unreadCount)}
+        <span class="text-xl">🔔</span>
+        {unreadCount.value > 0 && (
+          <span class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+            {unreadCount.value > 9 ? "9+" : unreadCount.value}
           </span>
         )}
       </button>
 
       {isOpen.value && (
         <>
-          {/* Backdrop - dark on mobile, transparent on desktop */}
-          <div class="fixed inset-0 z-40 bg-black/40 backdrop-blur-xs sm:bg-transparent" onClick$={closeDropdown}></div>
-          
-          {/* Desktop dropdown */}
-          <div class={`hidden sm:block ${NOTIFICATION_DROPDOWN_STYLES.dropdown} ${NOTIFICATION_DROPDOWN_CONFIG.width} ${NOTIFICATION_DROPDOWN_CONFIG.maxHeight}`}>
-            <div class={NOTIFICATION_DROPDOWN_STYLES.header}>
-              <h3 class={NOTIFICATION_DROPDOWN_STYLES.headerTitle}>{NOTIFICATION_DROPDOWN_LABELS.title}</h3>
-              {unreadCount > 0 && (
-                <button 
+          <div
+            class="fixed inset-0 z-40 bg-black/40 backdrop-blur-xs sm:bg-transparent"
+            onClick$={closeDropdown}
+          ></div>
+
+          <div class="hidden sm:block absolute right-0 top-full mt-2 w-80 bg-white rounded-2xl shadow-xl border border-gray-100 z-50 max-h-96 overflow-hidden flex flex-col">
+            <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between flex-shrink-0">
+              <h3 class="font-semibold text-gray-900">Notifikasi</h3>
+              {unreadCount.value > 0 && (
+                <button
                   onClick$={markAllRead}
-                  class={NOTIFICATION_DROPDOWN_STYLES.markAllButton}
+                  class="text-sm text-green-600 hover:text-green-700 font-medium"
                 >
-                  {NOTIFICATION_DROPDOWN_LABELS.markAllRead}
+                  Tandai semua dibaca
                 </button>
               )}
             </div>
 
-            <div class={`${NOTIFICATION_DROPDOWN_STYLES.scrollContainer} ${NOTIFICATION_DROPDOWN_CONFIG.scrollHeight}`}>
-              {notifications.value.length === 0 ? (
-                <div class={NOTIFICATION_DROPDOWN_STYLES.emptyState}>
-                  <span class={NOTIFICATION_DROPDOWN_STYLES.emptyIcon}>🔔</span>
-                  <p>{NOTIFICATION_DROPDOWN_LABELS.emptyState}</p>
+            <div class="flex-1 overflow-y-auto">
+              {isLoading.value ? (
+                <div class="py-12 text-center text-gray-500">
+                  <div class="animate-pulse text-4xl mb-2">🔔</div>
+                  <p class="text-sm">Memuat...</p>
+                </div>
+              ) : notifications.value.length === 0 ? (
+                <div class="py-12 text-center text-gray-500">
+                  <span class="text-4xl mb-2 block">🔔</span>
+                  <p class="text-sm">Tidak ada notifikasi</p>
                 </div>
               ) : (
                 notifications.value.map((notification) => (
                   <div
                     key={notification.id}
                     onClick$={() => handleNotificationClick(notification)}
-                    class={getNotificationItemClass(notification.read)}
+                    class={`flex gap-3 px-4 py-3 border-b border-gray-50 hover:bg-gray-50 transition cursor-pointer ${!notification.read ? "bg-green-50" : ""}`}
                   >
-                    <div class={NOTIFICATION_DROPDOWN_STYLES.notificationContent}>
-                      <div class={NOTIFICATION_DROPDOWN_STYLES.avatarContainer}>
-                        {notification.avatar.length === 1 ? (
-                          <div class={NOTIFICATION_DROPDOWN_STYLES.avatarUser}>
-                            {notification.avatar}
-                          </div>
-                        ) : (
-                          <div class={NOTIFICATION_DROPDOWN_STYLES.avatarSystem}>
-                            {notification.avatar}
-                          </div>
-                        )}
-                      </div>
-
-                      <div class={NOTIFICATION_DROPDOWN_STYLES.contentContainer}>
-                        <div class={NOTIFICATION_DROPDOWN_STYLES.contentHeader}>
-                          <span class={`text-lg ${getNotificationColor(notification.type)}`}>
-                            {getNotificationIcon(notification.type)}
-                          </span>
-                          <div class={NOTIFICATION_DROPDOWN_STYLES.contentBody}>
-                            <p class={NOTIFICATION_DROPDOWN_STYLES.title}>
-                              {notification.title}
-                            </p>
-                            <p class={NOTIFICATION_DROPDOWN_STYLES.message}>
-                              {notification.message}
-                            </p>
-                            <p class={NOTIFICATION_DROPDOWN_STYLES.time}>
-                              {notification.time}
-                            </p>
-                          </div>
-                          {!notification.read && (
-                            <div class={NOTIFICATION_DROPDOWN_STYLES.unreadDot}></div>
-                          )}
+                    <div class="flex-shrink-0">
+                      {notification.fromUserImage ? (
+                        <img
+                          src={notification.fromUserImage}
+                          alt=""
+                          class="w-10 h-10 rounded-full object-cover"
+                          width={40}
+                          height={40}
+                        />
+                      ) : (
+                        <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold">
+                          {notification.fromUserName?.charAt(0).toUpperCase() ||
+                            "S"}
                         </div>
+                      )}
+                    </div>
+
+                    <div class="flex-1 min-w-0">
+                      <div class="flex items-start gap-2">
+                        <span
+                          class={`text-lg ${getNotificationColor(notification.type)}`}
+                        >
+                          {getNotificationIcon(notification.type)}
+                        </span>
+                        <div class="flex-1">
+                          <p class="text-sm font-medium text-gray-900 mb-0.5">
+                            {notification.title}
+                          </p>
+                          <p class="text-xs text-gray-600 line-clamp-2">
+                            {notification.message}
+                          </p>
+                        </div>
+                        {!notification.read && (
+                          <div class="w-2 h-2 bg-green-500 rounded-full flex-shrink-0 mt-1"></div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -131,64 +189,72 @@ export default component$(() => {
               )}
             </div>
 
-            <div class={NOTIFICATION_DROPDOWN_STYLES.footer}>
-              <a 
-                href={NOTIFICATION_DROPDOWN_LABELS.viewAllHref}
-                class={NOTIFICATION_DROPDOWN_STYLES.viewAllLink}
+            <div class="px-4 py-3 border-t border-gray-100 text-center flex-shrink-0">
+              <a
+                href="/notifications"
+                class="text-sm text-green-600 hover:text-green-700 font-medium"
                 onClick$={closeDropdown}
               >
-                {NOTIFICATION_DROPDOWN_LABELS.viewAll}
+                Lihat semua notifikasi
               </a>
             </div>
           </div>
 
-          {/* Mobile bottom sheet */}
-          <div class="sm:hidden fixed bottom-0 left-0 right-0 w-full bg-white rounded-t-3xl shadow-2xl z-50 max-h-[85vh] flex flex-col animate-in slide-in-from-bottom duration-300" style="padding-bottom: env(safe-area-inset-bottom, 2rem);">
-            {/* Grabber bar */}
+          <div class="sm:hidden fixed bottom-0 left-0 right-0 w-full bg-white rounded-t-3xl shadow-2xl z-50 max-h-[85vh] flex flex-col">
             <div class="w-12 h-1 bg-gray-200 rounded-full mx-auto mt-3 mb-2 flex-shrink-0" />
-            
-            {/* Header */}
+
             <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between flex-shrink-0">
-              <h3 class="text-lg font-semibold text-gray-900">{NOTIFICATION_DROPDOWN_LABELS.title}</h3>
-              {unreadCount > 0 && (
-                <button 
+              <h3 class="text-lg font-semibold text-gray-900">Notifikasi</h3>
+              {unreadCount.value > 0 && (
+                <button
                   onClick$={markAllRead}
                   class="text-sm text-green-600 hover:text-green-700 font-medium"
                 >
-                  {NOTIFICATION_DROPDOWN_LABELS.markAllRead}
+                  Tandai semua dibaca
                 </button>
               )}
             </div>
 
-            {/* Scrollable content */}
             <div class="flex-1 overflow-y-auto px-4 py-2">
-              {notifications.value.length === 0 ? (
+              {isLoading.value ? (
+                <div class="py-12 text-center text-gray-500">
+                  <div class="animate-pulse text-4xl mb-2">🔔</div>
+                  <p>Memuat...</p>
+                </div>
+              ) : notifications.value.length === 0 ? (
                 <div class="py-12 text-center text-gray-500">
                   <span class="text-4xl mb-2 block">🔔</span>
-                  <p>{NOTIFICATION_DROPDOWN_LABELS.emptyState}</p>
+                  <p>Tidak ada notifikasi</p>
                 </div>
               ) : (
                 notifications.value.map((notification) => (
                   <div
                     key={notification.id}
                     onClick$={() => handleNotificationClick(notification)}
-                    class={`flex gap-3 px-4 py-4 rounded-xl transition active:bg-gray-100 ${!notification.read ? 'bg-green-50' : ''}`}
+                    class={`flex gap-3 px-4 py-4 rounded-xl transition active:bg-gray-100 ${!notification.read ? "bg-green-50" : ""}`}
                   >
                     <div class="flex-shrink-0">
-                      {notification.avatar.length === 1 ? (
-                        <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold">
-                          {notification.avatar}
-                        </div>
+                      {notification.fromUserImage ? (
+                        <img
+                          src={notification.fromUserImage}
+                          alt=""
+                          class="w-12 h-12 rounded-full object-cover"
+                          width={48}
+                          height={48}
+                        />
                       ) : (
-                        <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center text-2xl">
-                          {notification.avatar}
+                        <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                          {notification.fromUserName?.charAt(0).toUpperCase() ||
+                            "S"}
                         </div>
                       )}
                     </div>
 
                     <div class="flex-1 min-w-0">
                       <div class="flex items-start gap-2">
-                        <span class={`text-xl ${getNotificationColor(notification.type)}`}>
+                        <span
+                          class={`text-xl ${getNotificationColor(notification.type)}`}
+                        >
                           {getNotificationIcon(notification.type)}
                         </span>
                         <div class="flex-1">
@@ -197,9 +263,6 @@ export default component$(() => {
                           </p>
                           <p class="text-sm text-gray-600 line-clamp-2">
                             {notification.message}
-                          </p>
-                          <p class="text-xs text-gray-400 mt-1">
-                            {notification.time}
                           </p>
                         </div>
                         {!notification.read && (
@@ -212,14 +275,13 @@ export default component$(() => {
               )}
             </div>
 
-            {/* Footer */}
             <div class="px-4 py-3 border-t border-gray-100 text-center flex-shrink-0">
-              <a 
-                href={NOTIFICATION_DROPDOWN_LABELS.viewAllHref}
+              <a
+                href="/notifications"
                 class="text-sm text-green-600 hover:text-green-700 font-medium"
                 onClick$={closeDropdown}
               >
-                {NOTIFICATION_DROPDOWN_LABELS.viewAll}
+                Lihat semua notifikasi
               </a>
             </div>
           </div>

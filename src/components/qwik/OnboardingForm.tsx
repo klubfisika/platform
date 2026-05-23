@@ -1,7 +1,7 @@
-import { component$, useSignal, useStore, $ } from '@builder.io/qwik';
-import { registerMember } from '~/lib/db';
-import InstitutionPicker from './InstitutionPicker';
-import MajorPicker from './MajorPicker';
+import { component$, useSignal, useStore, $ } from "@builder.io/qwik";
+import { registerMember } from "~/lib/db";
+import InstitutionPicker from "./InstitutionPicker";
+import MajorPicker from "./MajorPicker";
 
 interface Props {
   userEmail?: string;
@@ -21,25 +21,31 @@ interface OnboardingData {
 
 export default component$<Props>(({ userEmail, userName }) => {
   const formData = useStore<OnboardingData>({
-    name: userName || '',
-    email: userEmail || '',
-    phone: '',
-    year: '',
-    major: '',
-    university: '',
-    motivation: '',
-    interests: []
+    name: userName || "",
+    email: userEmail || "",
+    phone: "",
+    year: "",
+    major: "",
+    university: "",
+    motivation: "",
+    interests: [],
   });
 
   const isSubmitting = useSignal(false);
   const isSuccess = useSignal(false);
-  const errorMsg = useSignal('');
+  const errorMsg = useSignal("");
   const currentStep = useSignal(1);
-  const emailError = useSignal('');
+  const emailError = useSignal("");
 
   const interests = [
-    'Mekanika', 'Termodinamika', 'Elektromagnetisme', 'Fisika Modern',
-    'Astrofisika', 'Fisika Kuantum', 'Eksperimen', 'Teori'
+    "Mekanika",
+    "Termodinamika",
+    "Elektromagnetisme",
+    "Fisika Modern",
+    "Astrofisika",
+    "Fisika Kuantum",
+    "Eksperimen",
+    "Teori",
   ];
 
   const toggleInterest = $((interest: string) => {
@@ -54,11 +60,11 @@ export default component$<Props>(({ userEmail, userName }) => {
   const validateEmail = $((email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email) {
-      emailError.value = '';
+      emailError.value = "";
     } else if (!emailRegex.test(email)) {
-      emailError.value = 'Format email tidak valid';
+      emailError.value = "Format email tidak valid";
     } else {
-      emailError.value = '';
+      emailError.value = "";
     }
   });
 
@@ -67,9 +73,18 @@ export default component$<Props>(({ userEmail, userName }) => {
   });
 
   const handleKeyPress = $((e: KeyboardEvent) => {
-    if (e.key === 'Enter' && currentStep.value < 3) {
-      const isStep1Valid = currentStep.value === 1 && !emailError.value && formData.name && formData.email && formData.phone;
-      const isStep2Valid = currentStep.value === 2 && formData.year && formData.major && formData.university;
+    if (e.key === "Enter" && currentStep.value < 3) {
+      const isStep1Valid =
+        currentStep.value === 1 &&
+        !emailError.value &&
+        formData.name &&
+        formData.email &&
+        formData.phone;
+      const isStep2Valid =
+        currentStep.value === 2 &&
+        formData.year &&
+        formData.major &&
+        formData.university;
 
       if (isStep1Valid || isStep2Valid) {
         nextStep();
@@ -83,7 +98,7 @@ export default component$<Props>(({ userEmail, userName }) => {
 
   const submitForm = $(async () => {
     isSubmitting.value = true;
-    errorMsg.value = '';
+    errorMsg.value = "";
     try {
       await registerMember({
         name: formData.name,
@@ -93,13 +108,14 @@ export default component$<Props>(({ userEmail, userName }) => {
         major: formData.major,
         university: formData.university,
         motivation: formData.motivation,
-        interests: formData.interests.join(', ')
+        interests: formData.interests.join(", "),
       });
       isSuccess.value = true;
     } catch (error: any) {
-      errorMsg.value = error.message?.includes('unique') || error.message?.includes('UNIQUE')
-        ? 'Email sudah terdaftar!'
-        : 'Gagal mendaftar. Silakan coba lagi.';
+      errorMsg.value =
+        error.message?.includes("unique") || error.message?.includes("UNIQUE")
+          ? "Email sudah terdaftar!"
+          : "Gagal mendaftar. Silakan coba lagi.";
     }
     isSubmitting.value = false;
   });
@@ -110,9 +126,16 @@ export default component$<Props>(({ userEmail, userName }) => {
         <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 animate-in zoom-in duration-700 delay-200">
           <span class="text-2xl animate-bounce">✅</span>
         </div>
-        <h2 class="text-2xl font-bold text-green-600 mb-4 animate-in slide-in-from-bottom duration-500 delay-300">Selamat!</h2>
-        <p class="text-gray-600 mb-6 animate-in slide-in-from-bottom duration-500 delay-400">Pendaftaran kamu berhasil! Selamat datang di keluarga KF13.</p>
-        <a href="/member" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 inline-block transition-all duration-200 hover:scale-105 animate-in slide-in-from-bottom duration-500 delay-500">
+        <h2 class="text-2xl font-bold text-green-600 mb-4 animate-in slide-in-from-bottom duration-500 delay-300">
+          Selamat!
+        </h2>
+        <p class="text-gray-600 mb-6 animate-in slide-in-from-bottom duration-500 delay-400">
+          Pendaftaran kamu berhasil! Selamat datang di keluarga KF13.
+        </p>
+        <a
+          href="/member"
+          class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 inline-block transition-all duration-200 hover:scale-105 animate-in slide-in-from-bottom duration-500 delay-500"
+        >
           Masuk ke Portal Member
         </a>
       </div>
@@ -123,8 +146,12 @@ export default component$<Props>(({ userEmail, userName }) => {
     <div class="bg-white p-8 rounded-lg shadow-lg animate-in fade-in duration-300">
       <div class="mb-6">
         <div class="flex justify-between items-center mb-2">
-          <span class="text-sm text-gray-500">Langkah {currentStep.value} dari 3</span>
-          <span class="text-sm text-gray-500">{Math.round((currentStep.value / 3) * 100)}%</span>
+          <span class="text-sm text-gray-500">
+            Langkah {currentStep.value} dari 3
+          </span>
+          <span class="text-sm text-gray-500">
+            {Math.round((currentStep.value / 3) * 100)}%
+          </span>
         </div>
         <div class="w-full bg-gray-200 rounded-full h-2">
           <div
@@ -135,10 +162,16 @@ export default component$<Props>(({ userEmail, userName }) => {
       </div>
 
       {errorMsg.value && (
-        <div class="mb-4 p-3 bg-red-100 text-red-700 rounded-lg">{errorMsg.value}</div>
+        <div class="mb-4 p-3 bg-red-100 text-red-700 rounded-lg">
+          {errorMsg.value}
+        </div>
       )}
 
-      <form preventdefault:submit onSubmit$={submitForm} onKeyDown$={handleKeyPress}>
+      <form
+        preventdefault:submit
+        onSubmit$={submitForm}
+        onKeyDown$={handleKeyPress}
+      >
         {currentStep.value === 1 && (
           <div class="space-y-4 animate-in slide-in-from-right duration-300">
             <h2 class="text-2xl font-bold mb-4">Informasi Dasar</h2>
@@ -146,7 +179,9 @@ export default component$<Props>(({ userEmail, userName }) => {
               type="text"
               placeholder="Nama Lengkap"
               value={formData.name}
-              onInput$={(e) => formData.name = (e.target as HTMLInputElement).value}
+              onInput$={(e) =>
+                (formData.name = (e.target as HTMLInputElement).value)
+              }
               class="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all duration-200 focus:shadow-lg focus:scale-[1.01]"
               autoFocus
               required
@@ -162,8 +197,8 @@ export default component$<Props>(({ userEmail, userName }) => {
               }}
               class={`w-full p-3 border rounded-xl outline-none transition-all duration-200 focus:shadow-lg focus:scale-[1.01] ${
                 emailError.value
-                  ? 'border-red-300 focus:ring-2 focus:ring-red-500 focus:border-transparent'
-                  : 'border-gray-200 focus:ring-2 focus:ring-green-500 focus:border-transparent'
+                  ? "border-red-300 focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  : "border-gray-200 focus:ring-2 focus:ring-green-500 focus:border-transparent"
               }`}
               required
             />
@@ -174,14 +209,21 @@ export default component$<Props>(({ userEmail, userName }) => {
               type="tel"
               placeholder="Nomor WhatsApp"
               value={formData.phone}
-              onInput$={(e) => formData.phone = (e.target as HTMLInputElement).value}
+              onInput$={(e) =>
+                (formData.phone = (e.target as HTMLInputElement).value)
+              }
               class="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all duration-200 focus:shadow-lg focus:scale-[1.01]"
               required
             />
             <button
               type="button"
               onClick$={nextStep}
-              disabled={!!emailError.value || !formData.name || !formData.email || !formData.phone}
+              disabled={
+                !!emailError.value ||
+                !formData.name ||
+                !formData.email ||
+                !formData.phone
+              }
               class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
             >
               Lanjut
@@ -194,7 +236,9 @@ export default component$<Props>(({ userEmail, userName }) => {
             <h2 class="text-2xl font-bold mb-4">Informasi Akademik</h2>
             <select
               value={formData.year}
-              onChange$={(e) => formData.year = (e.target as HTMLSelectElement).value}
+              onChange$={(e) =>
+                (formData.year = (e.target as HTMLSelectElement).value)
+              }
               class="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition"
               required
             >
@@ -206,12 +250,12 @@ export default component$<Props>(({ userEmail, userName }) => {
             </select>
             <MajorPicker
               value={formData.major}
-              onChange$={$((val: string) => formData.major = val)}
+              onChange$={$((val: string) => (formData.major = val))}
               placeholder="Jurusan"
             />
             <InstitutionPicker
               value={formData.university}
-              onChange$={$((val: string) => formData.university = val)}
+              onChange$={$((val: string) => (formData.university = val))}
               placeholder="Universitas/Sekolah"
             />
             <div class="flex space-x-4">
@@ -237,7 +281,9 @@ export default component$<Props>(({ userEmail, userName }) => {
           <div class="space-y-4 animate-in slide-in-from-right duration-300">
             <h2 class="text-2xl font-bold mb-4">Minat & Motivasi</h2>
             <div>
-              <label class="block text-sm font-medium mb-2">Bidang Fisika yang Diminati:</label>
+              <label class="block text-sm font-medium mb-2">
+                Bidang Fisika yang Diminati:
+              </label>
               <div class="grid grid-cols-2 gap-2">
                 {interests.map((interest) => (
                   <button
@@ -246,8 +292,8 @@ export default component$<Props>(({ userEmail, userName }) => {
                     onClick$={() => toggleInterest(interest)}
                     class={`p-2 text-sm rounded border ${
                       formData.interests.includes(interest)
-                        ? 'bg-blue-100 border-blue-500 text-blue-700'
-                        : 'bg-gray-50 border-gray-300 text-gray-700'
+                        ? "bg-blue-100 border-blue-500 text-blue-700"
+                        : "bg-gray-50 border-gray-300 text-gray-700"
                     }`}
                   >
                     {interest}
@@ -258,7 +304,9 @@ export default component$<Props>(({ userEmail, userName }) => {
             <textarea
               placeholder="Ceritakan motivasi kamu bergabung dengan KF13..."
               value={formData.motivation}
-              onInput$={(e) => formData.motivation = (e.target as HTMLTextAreaElement).value}
+              onInput$={(e) =>
+                (formData.motivation = (e.target as HTMLTextAreaElement).value)
+              }
               class="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition h-24 resize-none"
               required
             />
@@ -278,7 +326,7 @@ export default component$<Props>(({ userEmail, userName }) => {
                 {isSubmitting.value && (
                   <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                 )}
-                {isSubmitting.value ? 'Mendaftar...' : 'Gabung KF13!'}
+                {isSubmitting.value ? "Mendaftar..." : "Gabung KF13!"}
               </button>
             </div>
           </div>
