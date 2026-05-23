@@ -1,5 +1,6 @@
 import { drizzle } from 'drizzle-orm/neon-http';
 import { neon } from '@neondatabase/serverless';
+import * as schema from './db/schema';
 
 let dbInstance: ReturnType<typeof drizzle> | null = null;
 
@@ -16,6 +17,9 @@ export function getDb() {
   if (!url) throw new Error('DATABASE_URL is not set');
 
   const client = neon(url);
-  dbInstance = drizzle(client);
+  dbInstance = drizzle(client, { schema });
   return dbInstance;
 }
+
+export { schema };
+export type DbClient = ReturnType<typeof getDb>;

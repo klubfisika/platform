@@ -1,6 +1,6 @@
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
-import { getDb } from './db';
+import { getDb, schema } from './db';
 
 let authInstance: ReturnType<typeof betterAuth> | null = null;
 
@@ -23,7 +23,7 @@ export function getAuth() {
   authInstance = betterAuth({
     baseURL: origin,
     secret,
-    database: drizzleAdapter(db, { provider: 'pg' }),
+    database: drizzleAdapter(db, { provider: 'pg', schema }),
 
     emailAndPassword: {
       enabled: true,
