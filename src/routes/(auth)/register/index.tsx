@@ -1,5 +1,6 @@
 import { component$ } from "@builder.io/qwik";
 import { routeAction$, Form, type DocumentHead } from "@builder.io/qwik-city";
+import { getAuth } from "~/lib/auth";
 
 export const useRegisterAction = routeAction$(async (data, req) => {
   const name = String(data.name || "").trim();
@@ -14,27 +15,22 @@ export const useRegisterAction = routeAction$(async (data, req) => {
   }
 
   try {
-    const origin = req.url.origin;
-    const response = await fetch(`${origin}/api/auth/sign-up/email`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email, password })
+    const auth = getAuth();
+    const result = await auth.api.signUpEmail({
+      body: { name, email, password },
+      asResponse: true
     });
 
-    const result = await response.json();
-
-    if (!response.ok) {
-      return { success: false, error: result.message || "Pendaftaran gagal" };
+    const token = result.headers.get("set-cookie");
+    if (token) {
+      req.cookie.set("kf13.session_token", token, {
+        httpOnly: true, secure: true, sameSite: "lax", path: "/", maxAge: 30 * 24 * 60 * 60
+      });
     }
 
-    if (result.token) {
-      req.cookie.set("kf13.session_token", result.token, {
-        httpOnly: true,
-        secure: true,
-        sameSite: "lax",
-        path: "/",
-        maxAge: 30 * 24 * 60 * 60
-      });
+    const body = await result.json();
+    if (!result.ok) {
+      return { success: false, error: body.message || "Pendaftaran gagal" };
     }
 
     return { success: true };

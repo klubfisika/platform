@@ -1,5 +1,6 @@
 import { component$ } from "@builder.io/qwik";
 import { routeAction$, Form, type DocumentHead } from "@builder.io/qwik-city";
+import { getAuth } from "~/lib/auth";
 
 export const useLoginAction = routeAction$(async (data, req) => {
   const email = String(data.email || "").trim().toLowerCase();
@@ -10,27 +11,22 @@ export const useLoginAction = routeAction$(async (data, req) => {
   }
 
   try {
-    const origin = req.url.origin;
-    const response = await fetch(`${origin}/api/auth/sign-in/email`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password })
+    const auth = getAuth();
+    const result = await auth.api.signInEmail({
+      body: { email, password },
+      asResponse: true
     });
 
-    const result = await response.json();
-
-    if (!response.ok) {
-      return { success: false, error: result.message || "Email atau password salah" };
+    const token = result.headers.get("set-cookie");
+    if (token) {
+      req.cookie.set("kf13.session_token", token, {
+        httpOnly: true, secure: true, sameSite: "lax", path: "/", maxAge: 30 * 24 * 60 * 60
+      });
     }
 
-    if (result.token) {
-      req.cookie.set("kf13.session_token", result.token, {
-        httpOnly: true,
-        secure: true,
-        sameSite: "lax",
-        path: "/",
-        maxAge: 30 * 24 * 60 * 60
-      });
+    const body = await result.json();
+    if (!result.ok) {
+      return { success: false, error: body.message || "Email atau password salah" };
     }
 
     return { success: true };
@@ -52,9 +48,7 @@ export default component$(() => {
         </div>
 
         {action.value?.error && (
-          <div class="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm">
-            {action.value.error}
-          </div>
+          <div class="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm">{action.value.error}</div>
         )}
 
         {action.value?.success && (
