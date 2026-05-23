@@ -29,6 +29,7 @@ export const useOnboardingAction = routeAction$(async (data, req) => {
 
     return { success: true };
   } catch (e) {
+    console.error("onboarding error:", e);
     return { success: false, error: "Gagal menyimpan data" };
   }
 });

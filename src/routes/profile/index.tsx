@@ -13,7 +13,8 @@ export const useProfileData = routeLoader$(async (event) => {
     const db = getDb();
     const profiles = await db.run(`SELECT * FROM profiles WHERE user_id = '${authUser.id}'`);
     return { user: authUser, profile: profiles[0] || null };
-  } catch {
+  } catch (e) {
+    console.error("profile error:", e);
     return { user: authUser, profile: null };
   }
 });
@@ -41,7 +42,8 @@ export const useUpdateProfile = routeAction$(async (data, req) => {
     `);
 
     return { success: true };
-  } catch {
+  } catch (e) {
+    console.error("profile error:", e);
     return { success: false, error: "Gagal menyimpan profil" };
   }
 });

@@ -34,7 +34,8 @@ export const useRegisterAction = routeAction$(async (data, req) => {
     }
 
     return { success: true };
-  } catch {
+  } catch (e) {
+    console.error("register error:", e);
     return { success: false, error: "Gagal menghubungi server" };
   }
 });

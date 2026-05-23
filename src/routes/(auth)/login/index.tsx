@@ -30,7 +30,8 @@ export const useLoginAction = routeAction$(async (data, req) => {
     }
 
     return { success: true };
-  } catch {
+  } catch (e) {
+    console.error("login error:", e);
     return { success: false, error: "Gagal menghubungi server" };
   }
 });
