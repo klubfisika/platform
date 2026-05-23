@@ -1,5 +1,6 @@
 import { component$, useSignal, useVisibleTask$ } from "@builder.io/qwik";
 import { routeAction$, Form, type DocumentHead } from "@builder.io/qwik-city";
+import { getDb } from "~/lib/db";
 import { useAuth } from "~/lib/router";
 
 export const useOnboardingAction = routeAction$(async (data, req) => {
@@ -16,16 +17,15 @@ export const useOnboardingAction = routeAction$(async (data, req) => {
   if (!institution) return { success: false, error: "Institusi wajib diisi" };
 
   try {
-    const { neon } = await import("@neondatabase/serverless");
-    const client = neon(process.env.DATABASE_URL || "");
+    const db = getDb();
     const userId = authUser.id as string;
 
-    await client`
+    await db.run(`
       INSERT INTO profiles (user_id, institution, level, major, year, bio, onboarding_completed, updated_at)
-      VALUES (${userId}, ${institution}, ${level}, ${major}, ${year}, ${bio}, true, NOW())
+      VALUES ('${userId}', '${institution}', '${level}', '${major}', '${year}', '${bio}', true, NOW())
       ON CONFLICT (user_id)
-      DO UPDATE SET institution = ${institution}, level = ${level}, major = ${major}, year = ${year}, bio = ${bio}, onboarding_completed = true, updated_at = NOW()
-    `;
+      DO UPDATE SET institution = '${institution}', level = '${level}', major = '${major}', year = '${year}', bio = '${bio}', onboarding_completed = true, updated_at = NOW()
+    `);
 
     return { success: true };
   } catch (e) {

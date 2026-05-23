@@ -4,11 +4,19 @@ import { getDb } from './db';
 
 let authInstance: ReturnType<typeof betterAuth> | null = null;
 
+function getEnv(key: string): string {
+  if (typeof process !== 'undefined' && process.env[key]) return process.env[key];
+  if (typeof import.meta !== 'undefined' && (import.meta as any).env?.[key]) return (import.meta as any).env[key];
+  return '';
+}
+
 export function getAuth() {
   if (authInstance) return authInstance;
 
-  const origin = process.env.ORIGIN || '';
-  const secret = process.env.BETTER_AUTH_SECRET || '';
+  const origin = getEnv('ORIGIN') || 'http://localhost:5173';
+  const secret = getEnv('BETTER_AUTH_SECRET');
+  const githubId = getEnv('GITHUB_CLIENT_ID');
+  const githubSecret = getEnv('GITHUB_CLIENT_SECRET');
   const isDev = origin?.includes('localhost');
   const db = getDb();
 
@@ -25,11 +33,11 @@ export function getAuth() {
     },
 
     socialProviders: {
-      github: {
-        clientId: process.env.GITHUB_CLIENT_ID || '',
-        clientSecret: process.env.GITHUB_CLIENT_SECRET || '',
-        enabled: Boolean(process.env.GITHUB_CLIENT_ID)
-      }
+        github: {
+          clientId: githubId,
+          clientSecret: githubSecret,
+          enabled: Boolean(githubId)
+        }
     },
 
     session: {

@@ -3,17 +3,15 @@ import { routeAction$, routeLoader$, Form, type DocumentHead } from "@builder.io
 import { useAuth } from "~/lib/router";
 import PlatformLayout from "~/components/platform/PlatformLayout";
 
+import { getDb } from "~/lib/db";
+
 export const useProfileData = routeLoader$(async (event) => {
-  const authUser = await event.resolveValue(useAuth);
+  const authUser = (await event.resolveValue(useAuth)) as Record<string, unknown> | null;
   if (!authUser) return null;
 
-  const dbUrl = process.env.DATABASE_URL || "";
-  if (!dbUrl) return { user: authUser, profile: null };
-
   try {
-    const { neon } = await import("@neondatabase/serverless");
-    const client = neon(dbUrl);
-    const profiles = await client`SELECT * FROM profiles WHERE user_id = ${authUser.id}`;
+    const db = getDb();
+    const profiles = await db.run(`SELECT * FROM profiles WHERE user_id = '${authUser.id}'`);
     return { user: authUser, profile: profiles[0] || null };
   } catch {
     return { user: authUser, profile: null };
@@ -32,16 +30,15 @@ export const useUpdateProfile = routeAction$(async (data, req) => {
   const phone = String(data.phone || "").trim();
 
   try {
-    const { neon } = await import("@neondatabase/serverless");
-    const client = neon(process.env.DATABASE_URL || "");
+    const db = getDb();
     const userId = authUser.id as string;
 
-    await client`
+    await db.run(`
       INSERT INTO profiles (user_id, institution, level, major, year, bio, phone, updated_at)
-      VALUES (${userId}, ${institution}, ${level}, ${major}, ${year}, ${bio}, ${phone}, NOW())
+      VALUES ('${userId}', '${institution}', '${level}', '${major}', '${year}', '${bio}', '${phone}', NOW())
       ON CONFLICT (user_id)
-      DO UPDATE SET institution = ${institution}, level = ${level}, major = ${major}, year = ${year}, bio = ${bio}, phone = ${phone}, updated_at = NOW()
-    `;
+      DO UPDATE SET institution = '${institution}', level = '${level}', major = '${major}', year = '${year}', bio = '${bio}', phone = '${phone}', updated_at = NOW()
+    `);
 
     return { success: true };
   } catch {
