@@ -82,25 +82,15 @@ export function getAuth() {
         create: {
           after: async (newUser) => {
             const d = getDb();
-            await d.run(`CREATE TABLE IF NOT EXISTS profiles (
-              id SERIAL PRIMARY KEY,
-              user_id TEXT NOT NULL UNIQUE REFERENCES "user"(id) ON DELETE CASCADE,
-              username TEXT UNIQUE,
-              bio TEXT,
-              institution TEXT,
-              level TEXT DEFAULT 'SMA',
-              major TEXT,
-              year TEXT,
-              phone TEXT,
-              website TEXT,
-              avatar_url TEXT,
-              posts_count INTEGER DEFAULT 0,
-              cendol_count INTEGER DEFAULT 0,
-              bata_count INTEGER DEFAULT 0,
-              onboarding_completed BOOLEAN DEFAULT false,
-              created_at TIMESTAMPTZ DEFAULT NOW(),
-              updated_at TIMESTAMPTZ DEFAULT NOW()
-            )`);
+            const userId = newUser.id;
+            try {
+              await d.execute(
+                `INSERT INTO profiles (user_id) VALUES ($1) ON CONFLICT (user_id) DO NOTHING`,
+                [userId]
+              );
+            } catch {
+              void 0;
+            }
           }
         }
       }
