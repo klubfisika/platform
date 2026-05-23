@@ -1,33 +1,41 @@
-import { routeLoader$ } from "@builder.io/qwik-city";
-import { neon } from "@neondatabase/serverless";
+import { betterAuth } from 'better-auth';
+import { drizzleAdapter } from 'better-auth/adapters/drizzle';
+import { getDb } from './db';
 
-function db() {
-  const url = process.env.NEON_DATABASE_URL || (import.meta as any).env?.NEON_DATABASE_URL;
-  return neon(url);
+let authInstance: ReturnType<typeof betterAuth> | null = null;
+
+export function getAuth() {
+  if (authInstance) return authInstance;
+
+  const origin = process.env.ORIGIN || '';
+  const secret = process.env.BETTER_AUTH_SECRET || '';
+  const isDev = origin?.includes('localhost');
+
+  authInstance = betterAuth({
+    baseURL: origin,
+    secret,
+    database: drizzleAdapter(getDb(), { provider: 'pg' }),
+    session: {
+      cookieCache: { enabled: true, maxAge: 5 * 60 }
+    },
+    advanced: {
+      cookiePrefix: 'kf13',
+      crossSubDomainCookies: {
+        enabled: !isDev,
+        domain: isDev ? undefined : '.klubfisika.or.id'
+      },
+      defaultCookieAttributes: {
+        secure: !isDev,
+        httpOnly: true,
+        sameSite: 'lax'
+      }
+    },
+    trustedOrigins: [
+      origin,
+      'https://index.klubfisika.or.id',
+      'https://platform.klubfisika.or.id'
+    ]
+  });
+
+  return authInstance;
 }
-
-export interface AuthUser {
-  id: number;
-  username: string;
-  name: string;
-  email: string;
-  institution: string;
-}
-
-export const useAuth = routeLoader$<AuthUser | null>(async (req) => {
-  const token = req.cookie.get("kf13-session")?.value;
-  if (!token) return null;
-
-  try {
-    const d = db();
-    const rows = await d`
-      SELECT u.id, u.username, u.name, u.email, u.institution
-      FROM sessions s
-      JOIN users u ON s.user_id = u.id
-      WHERE s.token = ${token} AND s.expires_at > NOW()
-    `;
-    return rows.length > 0 ? (rows[0] as AuthUser) : null;
-  } catch {
-    return null;
-  }
-});

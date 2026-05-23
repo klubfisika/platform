@@ -1,30 +1,41 @@
-// Client-side routing guards for static sites
-const SESSION_KEY = 'kf13-member';
+import { routeLoader$ } from '@builder.io/qwik-city';
+import { getAuth } from './auth';
 
-// Route constants - single source of truth
+export interface AuthUser {
+  id: string;
+  name: string;
+  email: string;
+  emailVerified: boolean;
+  image?: string | null;
+}
+
+export const useAuth = routeLoader$<AuthUser | null>(async (event) => {
+  try {
+    const auth = getAuth();
+    const session = await auth.api.getSession({
+      headers: event.request.headers
+    });
+    if (!session?.user) return null;
+    return {
+      id: session.user.id,
+      name: session.user.name,
+      email: session.user.email,
+      emailVerified: session.user.emailVerified,
+      image: session.user.image ?? null
+    };
+  } catch {
+    return null;
+  }
+});
+
 export const ROUTES = {
   GUEST_HOME: '/mulai',
+  SIGN_IN: 'https://index.klubfisika.or.id/auth/sign-in',
+  SIGN_UP: 'https://index.klubfisika.or.id/auth/sign-up',
   MEMBER_HOME: '/feed',
-  OVERVIEW: '/overview',
   FEED: '/feed',
   DISCUSSIONS: '/discussions',
   PROJECTS: '/projects',
   COMPETITIONS: '/competitions',
-  SHORTS: '/shorts',
-  EXPLORE: '/explore',
-  PROFILE: '/profile',
+  PROFILE: '/profile'
 } as const;
-
-export const hasSession = () => !!localStorage.getItem(SESSION_KEY);
-
-export const redirectIfLoggedIn = (to = ROUTES.MEMBER_HOME) => {
-  if (hasSession()) window.location.replace(to);
-};
-
-export const redirectIfGuest = (to = ROUTES.GUEST_HOME) => {
-  if (!hasSession()) window.location.replace(to);
-};
-
-export const redirectAfterDelay = (to: string, ms = 800) => {
-  setTimeout(() => window.location.replace(to), ms);
-};
