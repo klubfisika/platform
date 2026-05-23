@@ -30,8 +30,9 @@ export const useAuth = routeLoader$<AuthUser | null>(async (event) => {
 
 export const ROUTES = {
   GUEST_HOME: '/mulai',
-  SIGN_IN: 'https://index.klubfisika.or.id/auth/sign-in',
-  SIGN_UP: 'https://index.klubfisika.or.id/auth/sign-up',
+  SIGN_IN: '/login',
+  SIGN_UP: '/register',
+  ONBOARDING: '/onboarding',
   MEMBER_HOME: '/feed',
   FEED: '/feed',
   DISCUSSIONS: '/discussions',
