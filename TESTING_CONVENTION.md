@@ -11,12 +11,14 @@ Dokumen ini menjelaskan pendekatan 3-layer testing untuk platform KF13 berbasis 
 **Tools**: Vitest + Testing Library
 
 **Contoh target**:
+
 - `src/lib/kaskus.ts` - Rank system, emoticon parsing
 - `src/lib/localStorage.ts` - Local storage helpers
 - `src/lib/router.ts` - Route constants dan guards
 - Utility functions di `src/data/*.ts`
 
 **Cara menjalankan**:
+
 ```bash
 bun test
 bun test --watch
@@ -24,24 +26,25 @@ bun test src/lib/kaskus.test.ts
 ```
 
 **Contoh test**:
+
 ```typescript
 // src/lib/kaskus.test.ts
-import { describe, it, expect } from 'vitest';
-import { getRank, RANKS, parseEmoticons } from './kaskus';
+import { describe, it, expect } from "vitest";
+import { getRank, RANKS, parseEmoticons } from "./kaskus";
 
-describe('getRank', () => {
-  it('returns Newbie for 0 posts', () => {
-    expect(getRank(0).title).toBe('Newbie');
+describe("getRank", () => {
+  it("returns Newbie for 0 posts", () => {
+    expect(getRank(0).title).toBe("Newbie");
   });
 
-  it('returns Kaskus Geek for 1000+ posts', () => {
-    expect(getRank(1000).title).toBe('Kaskus Geek');
+  it("returns Kaskus Geek for 1000+ posts", () => {
+    expect(getRank(1000).title).toBe("Kaskus Geek");
   });
 });
 
-describe('parseEmoticons', () => {
-  it('replaces :cendol: with emoji', () => {
-    expect(parseEmoticons(':cendol:')).toBe('🍵');
+describe("parseEmoticons", () => {
+  it("replaces :cendol: with emoji", () => {
+    expect(parseEmoticons(":cendol:")).toBe("🍵");
   });
 });
 ```
@@ -55,18 +58,21 @@ describe('parseEmoticons', () => {
 **Tools**: Vitest + @testing-library/dom
 
 **Contoh target**:
+
 - `src/components/qwik/*.tsx` - UI components
 - Form validation
 - Dropdown interactions
 - Navigation behavior
 
 **Cara menjalankan**:
+
 ```bash
 bun test:components
 bun test src/components/qwik/SearchBar.test.ts
 ```
 
 **Contoh test**:
+
 ```typescript
 // src/components/qwik/SearchBar.test.ts
 import { describe, it, expect, vi } from 'vitest';
@@ -97,12 +103,14 @@ describe('SearchBar', () => {
 **Tools**: Playwright
 
 **Contoh target**:
+
 - Registration flow: `/register` → `/onboarding` → `/feed`
 - Login flow: `/login` → `/feed`
 - Post creation: `/feed` → compose → submit
 - Navigation: sidebar, mobile nav, dropdowns
 
 **Cara menjalankan**:
+
 ```bash
 bun test:e2e
 bun test:e2e --ui
@@ -110,27 +118,28 @@ bun test:e2e tests/auth.spec.ts
 ```
 
 **Contoh test**:
+
 ```typescript
 // tests/auth.spec.ts
-import { test, expect } from '@playwright/test';
+import { test, expect } from "@playwright/test";
 
-test.describe('Authentication', () => {
-  test('registration flow', async ({ page }) => {
-    await page.goto('/register');
-    
-    await page.fill('input[type="text"]', 'Test User');
-    await page.fill('input[type="email"]', 'test@example.com');
-    await page.fill('input[type="password"]', 'password123');
+test.describe("Authentication", () => {
+  test("registration flow", async ({ page }) => {
+    await page.goto("/register");
+
+    await page.fill('input[type="text"]', "Test User");
+    await page.fill('input[type="email"]', "test@example.com");
+    await page.fill('input[type="password"]', "password123");
     await page.click('button[type="submit"]');
-    
+
     await expect(page).toHaveURL(/\/onboarding/);
   });
 
-  test('login redirects to feed for existing member', async ({ page }) => {
-    await page.goto('/login');
-    await page.fill('input[type="email"]', 'existing@example.com');
+  test("login redirects to feed for existing member", async ({ page }) => {
+    await page.goto("/login");
+    await page.fill('input[type="email"]', "existing@example.com");
     await page.click('button[type="submit"]');
-    
+
     await expect(page).toHaveURL(/\/feed/);
   });
 });
@@ -143,6 +152,7 @@ test.describe('Authentication', () => {
 ### Setup
 
 1. **Environment Variables**:
+
    ```bash
    cp .env.example .env.local
    ```
@@ -159,6 +169,7 @@ test.describe('Authentication', () => {
 ### Manual Testing Checklist
 
 **Authentication Flow**:
+
 - [ ] `/mulai` - Landing page dengan link ke login/register
 - [ ] `/register` - Form pendaftaran baru
 - [ ] `/login` - Form login
@@ -166,12 +177,14 @@ test.describe('Authentication', () => {
 - [ ] Redirect setelah login ke `/feed`
 
 **Mobile Responsiveness**:
+
 - [ ] Bottom navigation bar visible on mobile
 - [ ] Dropdowns render as bottom sheets on mobile
 - [ ] Touch interactions work correctly
 - [ ] Safe area padding on iOS devices
 
 **Desktop/Tablet**:
+
 - [ ] Left sidebar visible and collapsible
 - [ ] Right sidebar shows correctly
 - [ ] Dropdowns render as popovers
@@ -210,14 +223,14 @@ jobs:
 
 ## Testing Commands Summary
 
-| Command | Description |
-|---------|-------------|
-| `bun run dev` | Start local dev server with NeonDB connection |
-| `bun test` | Run unit tests |
-| `bun test:components` | Run component tests |
-| `bun test:e2e` | Run E2E tests with Playwright |
-| `bun run lint` | ESLint check |
-| `bun run build.types` | TypeScript type check |
+| Command               | Description                                   |
+| --------------------- | --------------------------------------------- |
+| `bun run dev`         | Start local dev server with NeonDB connection |
+| `bun test`            | Run unit tests                                |
+| `bun test:components` | Run component tests                           |
+| `bun test:e2e`        | Run E2E tests with Playwright                 |
+| `bun run lint`        | ESLint check                                  |
+| `bun run build.types` | TypeScript type check                         |
 
 ---
 

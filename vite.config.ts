@@ -28,6 +28,15 @@ export default defineConfig(({ command, mode }): UserConfig => {
       // Put problematic deps that break bundling here, mostly those with binaries.
       // For example ['better-sqlite3'] if you use that in server functions.
       exclude: [],
+      include: ["better-auth"],
+    },
+    ssr: {
+      noExternal: ["better-auth"],
+    },
+    build: {
+      rollupOptions: {
+        external: ["node:async_hooks"],
+      },
     },
 
     /**
