@@ -1,5 +1,7 @@
 # Qwik City App ⚡️
 
+Repo ini sekarang juga menyimpan merge historis dari `platform.klubfisika.or.id` ke jalur kerja `apps/platform`. Lihat `docs/PLATFORM-MERGE-INVENTORY.md` untuk rincian commit yang disatukan.
+
 - [Qwik Docs](https://qwik.dev/)
 - [Discord](https://qwik.dev/chat)
 - [Qwik GitHub](https://github.com/QwikDev/qwik)
