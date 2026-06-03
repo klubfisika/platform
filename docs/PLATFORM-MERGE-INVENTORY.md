@@ -18,3 +18,10 @@ Dokumen ini mencatat penggabungan histori dari `platform.klubfisika.or.id` ke re
 - Snapshot dokumen legacy platform juga sudah diarsipkan di `docs/legacy/platform-repo/`.
 - Snapshot `platform-restore` dari `klubfisika.github.io` juga sudah diarsipkan di `docs/legacy/platform-restore/`.
 - Untuk aset dokumentasi dan referensi historis, gunakan file ini bersama README repo dan tag arsip yang sudah ada.
+
+## Route legacy yang dijaga
+
+- `/platform` → hub utama platform
+- `/platform/feed`, `/platform/discussions`, `/platform/projects`, `/platform/explore`, `/platform/profile`, `/platform/overview`
+- `/platform/design-system` → alias legacy ke `/design-system`
+- `/member` → alias lama ke `/platform/overview`
