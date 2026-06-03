@@ -16,4 +16,5 @@ Dokumen ini mencatat penggabungan histori dari `platform.klubfisika.or.id` ke re
 - Merge ini memakai strategi non-destruktif agar tidak ada histori yang hilang.
 - Tree code utama tetap mengikuti repo community, karena struktur Astro/Qwik tidak bisa dicampur secara literal tanpa konflik besar.
 - Snapshot dokumen legacy platform juga sudah diarsipkan di `docs/legacy/platform-repo/`.
+- Snapshot `platform-restore` dari `klubfisika.github.io` juga sudah diarsipkan di `docs/legacy/platform-restore/`.
 - Untuk aset dokumentasi dan referensi historis, gunakan file ini bersama README repo dan tag arsip yang sudah ada.

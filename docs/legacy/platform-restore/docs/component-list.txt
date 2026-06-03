@@ -1,0 +1,8 @@
+src/components/ProfileAdvancedSEO.astro
+src/components/ProfileCard.astro
+src/components/ProfileSEO.astro
+src/components/qwik
+src/components/qwik/MemberProfile.tsx
+src/components/qwik/ProfileDropdown.tsx
+src/components/qwik/ProfilePreloader.tsx
+src/components/qwik/ShareProfile.tsx
